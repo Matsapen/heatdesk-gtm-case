@@ -1,0 +1,784 @@
+<title>HeatDesk Cockpit BDR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: barra laterale fissa con le viste, area di lavoro a destra; su telefono la barra diventa una fila di schede in alto. */
+:root{
+  --bg:#fafafa; --surface:#ffffff; --surface-2:#f4f4f5; --fg:#09090b; --muted:#71717a; --faint:#a1a1aa; --line:#e4e4e7;
+  --ink:#18181b; --ink-fg:#fafafa;
+  --violet:#7d68eb; --violet-2:#6c5ae6; --violet-soft:#f1edff; --violet-ink:#5b47d6;
+  --coral:#fc9090; --coral-soft:#fdeeee; --coral-ink:#c23b3b;
+  --ok:#10b981; --ok-soft:#e8f8f1; --ok-ink:#047857;
+  --warn:#f99c00; --warn-soft:#fff5e0; --warn-ink:#a15c00;
+  --shadow:0 1px 2px rgba(24,24,27,.06),0 8px 24px rgba(24,24,27,.06);
+  --f-display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c0c0f; --surface:#151519; --surface-2:#1e1e23; --fg:#f4f4f5; --muted:#a1a1aa; --faint:#71717a; --line:#2a2a31;
+  --ink:#f4f4f5; --ink-fg:#18181b;
+  --violet:#9f8cf2; --violet-2:#8b78ee; --violet-soft:#241f3a; --violet-ink:#c4b8ff;
+  --coral:#fc9090; --coral-soft:#3a1f22; --coral-ink:#ffb4b4;
+  --ok:#34d399; --ok-soft:#0f2a22; --ok-ink:#7ee8bf;
+  --warn:#fbbf24; --warn-soft:#33260d; --warn-ink:#fcd77a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c0c0f; --surface:#151519; --surface-2:#1e1e23; --fg:#f4f4f5; --muted:#a1a1aa; --faint:#71717a; --line:#2a2a31;
+  --ink:#f4f4f5; --ink-fg:#18181b;
+  --violet:#9f8cf2; --violet-2:#8b78ee; --violet-soft:#241f3a; --violet-ink:#c4b8ff;
+  --coral:#fc9090; --coral-soft:#3a1f22; --coral-ink:#ffb4b4;
+  --ok:#34d399; --ok-soft:#0f2a22; --ok-ink:#7ee8bf;
+  --warn:#fbbf24; --warn-soft:#33260d; --warn-ink:#fcd77a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:28px;font-weight:600}
+h2{font-size:18px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+p{margin:0}
+a{color:var(--violet-ink)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.side{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:18px;padding:18px 12px 14px max(12px,env(safe-area-inset-left,0px))}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 6px}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#9079ed,#6c5ae6);display:grid;place-items:center;color:#fff;font:700 15px var(--f-display)}
+.brand b{display:block;font:600 15px var(--f-display)}
+.brand span{font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .group{margin:12px 8px 4px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--fg);text-decoration:none;font-weight:500}
+.nav a:hover{background:var(--surface-2)}
+.nav a.on{background:var(--ink);color:var(--ink-fg)}
+.nav a .count{margin-left:auto;font-size:12px;font-weight:600;padding:1px 7px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.nav a.on .count{background:rgba(255,255,255,.18);color:inherit}
+.nav svg{width:16px;height:16px;flex:none}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.demo-tag{font:600 11px var(--f-mono);letter-spacing:.04em;color:var(--violet-ink);background:var(--violet-soft);border-radius:8px;padding:8px 10px;line-height:1.4}
+.who{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:10px}
+.avatar{width:30px;height:30px;border-radius:99px;background:var(--surface-2);display:grid;place-items:center;font:600 12px var(--f-display);color:var(--muted);flex:none}
+.who b{display:block;font-size:13px}
+.who span{font-size:12px;color:var(--muted)}
+.theme-btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 10px;font-size:12px;color:var(--muted)}
+
+main{min-width:0;padding-block:28px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.head{display:flex;gap:20px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.head .intro{max-width:640px;display:flex;flex-direction:column;gap:8px}
+.head .intro p{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:600;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--ink);color:var(--ink-fg);border-color:var(--ink)}
+.btn.violet{background:linear-gradient(135deg,#9079ed,#6c5ae6);color:#fff;border:0}
+.btn.small{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn svg{width:16px;height:16px}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.chip.violet{background:var(--violet-soft);color:var(--violet-ink)}
+.chip.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.chip.warn{background:var(--warn-soft);color:var(--warn-ink)}
+.chip.coral{background:var(--coral-soft);color:var(--coral-ink)}
+.chip.line{background:transparent;border:1px solid var(--line);color:var(--fg)}
+.dot{width:6px;height:6px;border-radius:99px;background:currentColor}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.panel-b{padding:16px 18px}
+
+/* lista aziende */
+.rows{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 92px 150px 140px 44px;gap:16px;align-items:center;padding:14px 18px;border-top:1px solid var(--line);cursor:pointer}
+.row:first-child{border-top:0}
+.row:hover{background:var(--surface-2)}
+.row.headrow{cursor:default;padding-block:10px;background:transparent}
+.row.headrow:hover{background:transparent}
+.co{display:flex;gap:12px;min-width:0}
+.mono{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font:600 13px var(--f-display);flex:none;background:var(--violet-soft);color:var(--violet-ink)}
+.co-t{min-width:0;display:flex;flex-direction:column;gap:4px}
+.co-t b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.co-t .desc{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.sig{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--violet-ink);background:var(--violet-soft);border-radius:6px;padding:2px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;align-self:flex-start}
+.score{display:flex;align-items:center;gap:8px}
+.ring{--p:0;width:34px;height:34px;border-radius:99px;background:conic-gradient(var(--violet) calc(var(--p)*1%),var(--surface-2) 0);display:grid;place-items:center;flex:none}
+.ring i{width:26px;height:26px;border-radius:99px;background:var(--surface);display:grid;place-items:center;font:600 11px var(--f-display);font-style:normal}
+.fascia{font:700 12px var(--f-display);width:22px;height:22px;border-radius:6px;display:grid;place-items:center}
+.fascia.A{background:var(--ink);color:var(--ink-fg)}
+.fascia.B{background:var(--violet-soft);color:var(--violet-ink)}
+.fascia.C{background:var(--surface-2);color:var(--muted)}
+.place b{display:block;font-weight:500}
+.place span{font-size:12px;color:var(--muted)}
+.callbtn{width:36px;height:36px;border-radius:99px;border:0;background:var(--ok);color:#fff;display:grid;place-items:center}
+.callbtn svg{width:16px;height:16px}
+.callbtn:disabled{background:var(--surface-2);color:var(--faint);cursor:default}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.seg{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg.on{background:var(--ink);color:var(--ink-fg);border-color:var(--ink)}
+.search{flex:1;min-width:180px;max-width:320px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font:inherit;color:var(--fg)}
+
+/* scheda azienda */
+.back{color:var(--muted);text-decoration:none;font-weight:500;display:inline-flex;gap:6px;align-items:center}
+.card-h{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.card-h .mono{width:52px;height:52px;font-size:17px;border-radius:12px}
+.card-h .t{flex:1;min-width:220px;display:flex;flex-direction:column;gap:8px}
+.card-h h1{font-size:26px}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.facts>div{background:var(--surface);padding:14px 18px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.facts b{font:600 16px var(--f-display)}
+.facts span.s{font-size:12px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+.why{display:flex;flex-direction:column;gap:10px}
+.why li{display:flex;gap:10px;align-items:flex-start}
+.why ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tick{width:20px;height:20px;border-radius:6px;background:var(--violet-soft);color:var(--violet-ink);display:grid;place-items:center;flex:none;margin-top:1px}
+.tick svg{width:12px;height:12px}
+.opener{position:relative;border-radius:14px;padding:18px 18px 16px;background:linear-gradient(135deg,#9079ed,#6c5ae6);color:#fff;display:flex;flex-direction:column;gap:10px}
+.opener .label{color:rgba(255,255,255,.8)}
+.opener q{font:500 17px/1.45 var(--f-display);quotes:"“" "”"}
+.opener .btn{align-self:flex-start;background:rgba(255,255,255,.16);border:0;color:#fff}
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar-l{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--violet)}
+.bar.ink i{background:var(--ink)}
+.bar.ok i{background:var(--ok)}
+.rules{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.rules li{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.rules li.yes{color:var(--fg)}
+.rules li span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px 14px;font-size:13px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.copy{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:1px 7px;font-size:12px;color:var(--muted);margin-left:6px}
+textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg);font:inherit;padding:10px;resize:vertical}
+.warnbox{border-radius:12px;padding:12px 14px;background:var(--warn-soft);color:var(--warn-ink);font-size:13px}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:13px}
+.timeline li{display:flex;gap:10px}
+.timeline time{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* sessione e chiamata */
+.session{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--ink);color:var(--ink-fg);border-radius:12px;padding:10px 14px}
+.session .grow{flex:1;min-width:160px}
+.session .btn{background:rgba(127,127,127,.18);border:0;color:inherit}
+.callbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px;padding:10px 12px;width:min(640px,calc(100% - 32px))}
+.callbar .grow{flex:1;min-width:150px}
+.callbar b{display:block}
+.callbar span{font-size:12px;color:var(--muted)}
+.pulse{width:8px;height:8px;border-radius:99px;background:var(--warn);animation:p 1s infinite}
+.pulse.live{background:var(--ok)}
+@keyframes p{50%{opacity:.3}}
+.btn.ok{background:var(--ok);color:#fff;border:0}
+.btn.coral{background:var(--coral-soft);color:var(--coral-ink);border:0}
+.scrim{position:fixed;inset:0;background:rgba(9,9,11,.35);z-index:45}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:50;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.drawer-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px;border-bottom:1px solid var(--line)}
+.drawer-b{padding:18px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.x{border:0;background:var(--surface-2);border-radius:8px;width:30px;height:30px}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.oc{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.oc b{font-size:13px}
+.oc span{font-size:12px;color:var(--muted)}
+.oc.on{border-color:var(--violet);background:var(--violet-soft)}
+.oc.good b{color:var(--ok-ink)}
+.oc.bad b{color:var(--coral-ink)}
+.days{display:flex;gap:6px;flex-wrap:wrap}
+
+/* misura e metodo */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.kpi b{font:600 28px var(--f-display);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 18px;border-bottom:1px solid var(--line)}
+td{padding:11px 18px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.tablewrap{overflow-x:auto}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:12px;align-items:center}
+.funnel{display:flex;flex-direction:column;gap:10px}
+.f-row{display:grid;grid-template-columns:200px minmax(0,1fr) 70px;gap:12px;align-items:center;font-size:13px}
+.f-bar{height:22px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.f-bar i{display:block;height:100%;background:var(--faint);border-radius:6px}
+.f-row.hl .f-bar i{background:var(--violet)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.step{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.step .n{font:600 12px var(--f-mono);color:var(--violet-ink)}
+.step p{font-size:13px;color:var(--muted)}
+.step .tool{font-size:12px;font-weight:600;color:var(--fg)}
+.sliders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.sl{display:flex;flex-direction:column;gap:10px}
+.sl-row{display:grid;grid-template-columns:minmax(0,1fr) 120px 34px;gap:10px;align-items:center;font-size:13px}
+.sl-row output{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--violet)}
+.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rank li{display:grid;grid-template-columns:28px minmax(0,1fr) 40px 30px 40px;gap:8px;align-items:center;padding:8px 18px;border-top:1px solid var(--line);font-size:13px}
+.rank li:first-child{border-top:0}
+.mv.up{color:var(--ok-ink)}
+.mv.down{color:var(--coral-ink)}
+.note{font-size:12px;color:var(--muted)}
+.banner{border-radius:12px;padding:12px 14px;background:var(--violet-soft);color:var(--violet-ink);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13px}
+
+@media (max-width:980px){
+  .row{grid-template-columns:minmax(0,1fr) 84px 44px}
+  .row .place,.row .st{display:none}
+  .grid2{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .steps{grid-template-columns:1fr 1fr}
+  .sliders{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:0;z-index:30;height:auto;flex-direction:row;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  .brand span,.side-foot,.nav .group{display:none}
+  .nav{flex-direction:row}
+  .nav a{white-space:nowrap;padding:7px 10px}
+  .nav a .count{display:none}
+  .facts{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr}
+  .f-row{grid-template-columns:110px minmax(0,1fr) 54px}
+  .outcomes{grid-template-columns:1fr}
+  .kv{grid-template-columns:96px minmax(0,1fr)}
+  .sl-row{grid-template-columns:minmax(0,1fr) 90px 30px}
+}
+@media (prefers-reduced-motion: reduce){.pulse{animation:none}}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo">H</div><div><b>Cockpit BDR</b><span>HeatDesk</span></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="demo-tag">DEMO · 61 aziende reali dal campione del 15/11/2026. Le chiamate sono simulate.</div>
+      <div class="who"><div class="avatar">BD</div><div><b>BDR demo</b><span>Nord e Centro</span></div></div>
+      <button class="theme-btn" id="themeBtn" type="button">Tema chiaro o scuro</button>
+    </div>
+  </aside>
+  <main><div class="wrap" id="view"></div></main>
+</div>
+<div id="overlay"></div>
+
+<script>
+const AZIENDE = [{"id":"23","nome":"Fenim srl","ragione":"FENIM S.R.L.","fascia":"A","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Nerviano (MI)","ruolo":"Frigorista - Climatizzazione e Refrigerazione","nAnnunci":1,"testo":"Manutenzione refrigerazione, clima ed elettrico per catene e attività commerciali; centro assistenza Clivet, Lennox, Loxone, Kessel; \"siamo 10 persone\"","marchi":"Clivet, Lennox, Loxone, Kessel","piva":"08440740960","vies":"VIA PERFETTI 1 20017 RHO MI","fatturato":1255047,"annoFatt":"2024","dipendenti":8,"titolare":"","sito":"https://www.fenim.it","tel":"+39 0331 570416","email":"info@fenim.it","link":"https://it.indeed.com/viewjob?jk=d6a316cdf85058c5","fonti":"https://www.aziende.it/fenim-s-r-l https://aziende.virgilio.it/rho-mi/fenim https://www.fenim.it https://www.aziende.it/fenim-s-r-l VIES 2026-11-15","apertura":"Ho visto che cercate un frigorista - climatizzazione e refrigerazione e che fate assistenza su più marchi. Quante manutenzioni programmate gestite all'anno, e dove le tenete oggi?","s":{"manut":true,"install":true,"marchi":true,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":true,"titolare":false},"puntiCsv":70},{"id":"34","nome":"DIAN SRL","ragione":"DIAN S.R.L.","fascia":"A","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Veneto","comune":"Dolo (frazione Sambruson)","ruolo":"Manutentore di caldaie junior","nAnnunci":1,"testo":"Assistenza e manutenzione caldaie, pompe di calore, ibridi, climatizzatori; da oltre 20 anni; Dolo (VE)","marchi":"Baxi, Viessmann, Toshiba, Stelbi, Wavin (dal sito); piani di manutenzione programmati","piva":"03859890273","vies":"VIA PONTE 18 30031 DOLO VE","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://www.diansrl.it","tel":"041 5102923","email":"info@diansrl.it","link":"https://it.indeed.com/viewjob?jk=5f8a7d63223b8968","fonti":"https://www.reteimprese.it/115914 https://www.diansrl.it https://www.reteimprese.it/115914 VIES 2026-11-15","apertura":"Ho visto che cercate un manutentore di caldaie junior e che fate assistenza su più marchi. Quante manutenzioni programmate gestite all'anno, e dove le tenete oggi?","s":{"manut":true,"install":true,"marchi":true,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":70},{"id":"1","nome":"New Thermocomfort S.r.L.","ragione":"NEW THERMOCOMFORT SRL","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Corte Palasio (LO)","ruolo":"Operaio idraulico e tecnico manutentore delle caldaie","nAnnunci":1,"testo":"Cerca 2 persone: idraulico e/o tecnico caldaie; centrali termiche e privati","marchi":"","piva":"09479630965","vies":"VIA MONTALE 4 26834 CORTE PALASIO LO","fatturato":1000000,"annoFatt":"2024","dipendenti":6,"titolare":"","sito":"","tel":"0371 72178","email":"newthermocomfortsrl@gmail.com","link":"https://it.indeed.com/viewjob?jk=fd00fd048147bc6a","fonti":"https://www.aziende.it/new-thermocomfort-srl https://registroaziende.it/azienda/new-thermocomfort-srl-corte-palasio https://www.newthermocomfort.it https://registroaziende.it/azienda/new-thermocomfort-srl-corte-palasio VIES 2026-11-15","apertura":"Ho visto che cercate un operaio idraulico e tecnico manutentore delle caldaie. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":true,"crescita":false,"identita":true,"contatto":true,"titolare":false},"puntiCsv":65},{"id":"3","nome":"Viganò Enrico snc","ragione":"VIGANO' ENRICO S.N.C DI WALTER, ELIO E ROBERTO VIGANO' E C..","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Carate Brianza (MB)","ruolo":"Tecnico caldaia / manutenzione e assistenza caldaie","nAnnunci":1,"testo":"Assistenza tecnica caldaie e manutenzione; centro assistenza Unical, Daikin, Hoval, Cuenod in Brianza; sede Via Tiziano 2 Carate Brianza","marchi":"Unical, Daikin, Hoval, Cuenod","piva":"02090150968","vies":"VIA TIZIANO 2 20841 CARATE BRIANZA MB","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Walter, Elio e Roberto Viganò","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=4b7dc97333a12197","fonti":"https://www.aziende.it/vigano-enrico-s-n-c-di-walter-elio-e-roberto-vigano-e-c https://www.aziende.it/vigano-enrico-s-n-c-di-walter-elio-e-roberto-vigano-e-c VIES 2026-11-15","apertura":"Ho visto che cercate un tecnico caldaia e che fate assistenza su più marchi. Quante manutenzioni programmate gestite all'anno, e dove le tenete oggi?","s":{"manut":true,"install":true,"marchi":true,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":false,"titolare":true},"puntiCsv":65},{"id":"6","nome":"Nordidraulica","ragione":"NORDIDRAULICA S.R.L.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Bareggio","ruolo":"tecnico manutentore caldaie","nAnnunci":1,"testo":"\"Azienda solida e in crescita continua\"; installazione, assistenza e manutenzione caldaie","marchi":"","piva":"10330970962","vies":"VIA ENRICO BERLINGUER 22/B 20007 CORNAREDO MI","fatturato":3723247,"annoFatt":"2024","dipendenti":27,"titolare":"","sito":"https://www.nordidraulica.it","tel":"02 23170141","email":"info@nordidraulica.it","link":"https://it.indeed.com/viewjob?jk=30fa439adffe0684","fonti":"https://www.nordidraulica.it https://topaziende.quotidiano.net/?p=203903 VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (tecnico manutentore caldaie). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":65},{"id":"19","nome":"CANTI & PEDINI ENERGY SOLAR SRL","ragione":"CANTI & PEDINI ENERGY SOLAR S.R.L.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Marche","comune":"Vallefoglia (PU)","ruolo":"Caldaista e Tecnico Frigorista","nAnnunci":1,"testo":"Efficienza energetica, impianti termici e climatizzazione, civile e industriale; Vallefoglia (PU)","marchi":"","piva":"02509640419","vies":"VIA ENRICO MATTEI COLBORDOLO SNC 61022 VALLEFOGLIA PU","fatturato":3326792,"annoFatt":"2024","dipendenti":14,"titolare":"","sito":"https://www.cantiepedini.it","tel":"0721 496040","email":"info@cantiepedini.it","link":"https://it.indeed.com/viewjob?jk=981845e2104d1a5d","fonti":"https://topaziende.quotidiano.net/marche/pesaro-urbino/fatturato-canti-pedini-energy-solar-srl/ https://www.enfsolar.com/canti-pedini https://www.cantiepedini.it https://topaziende.quotidiano.net/marche/pesaro-urbino/fatturato-canti-pedini-energy-solar-srl/ VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (caldaista e tecnico frigorista). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":65},{"id":"37","nome":"Lagitech Srl","ragione":"LAGITECH S.R.L.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lazio","comune":"Roma","ruolo":"Aiutante termoidraulico o elettricista","nAnnunci":1,"testo":"Impianti tecnologici, oltre 35 anni; progettazione, realizzazione, manutenzione; sede Via Francesco Aquilanti 46 Roma","marchi":"","piva":"13309631003","vies":"VIA FRANCESCO AQUILANTI 46 00166 ROMA RM","fatturato":914594,"annoFatt":"2024","dipendenti":5,"titolare":"","sito":"","tel":"06 86923551","email":"","link":"https://it.indeed.com/viewjob?jk=5560e6a82f65545e","fonti":"https://www.aziende.it/lagitech-srl https://www.lagitech.it https://www.aziende.it/lagitech-srl VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (aiutante termoidraulico o elettricista). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":65},{"id":"46","nome":"Emmetermo","ragione":"EMMETERMO DI LANCINI MARCO","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Palazzolo sull'Oglio","ruolo":"Apprendista termoidraulico","nAnnunci":1,"testo":"Installazione climatizzatori; \"sta ampliando il proprio team\"; Palazzolo sull'Oglio (BS)","marchi":"","piva":"04155310982","vies":"VIA FRATELLI BANDIERA N 45 25036 PALAZZOLO SULL'OGLIO BS","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Marco Lancini (ditta individuale, da VIES)","sito":"https://www.emmetermo.com","tel":"","email":"info@emmetermo.com","link":"https://it.indeed.com/viewjob?jk=e7e4c0cbf748bef0","fonti":"https://www.emmetermo.com https://www.paginegialle.it/palazzolo-sull-oglio-bs/vendite-online/lancini VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (apprendista termoidraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":true},"puntiCsv":65},{"id":"18","nome":"Tecnofon srl","ragione":"TECNOFON S.R.L.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Veneto","comune":"Venezia (Campalto)","ruolo":"Tecnico caldaista","nAnnunci":1,"testo":"Settore termoidraulico; installazione, manutenzione e riparazione caldaie; Campalto (VE)","marchi":"","piva":"03718870276","vies":"VIA CARLO MARTELLO 5 30173 VENEZIA VE","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"tecnofonsrl.com","tel":"041 5420611","email":"info@tecnofonsrl.com","link":"https://it.indeed.com/viewjob?jk=f097326f7f5b8c06","fonti":"https://www.tecnofonsrl.com https://www.amministrazionicomunali.it/veneto/venezia/tecnofon-srl VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (tecnico caldaista). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":60},{"id":"31","nome":"Pirazzoli di Pirazzoli Massimo & C. s.a.s.","ragione":"Pirazzoli di Pirazzoli Massimo & C. S.a.s.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Piemonte","comune":"Torino","ruolo":"tecnico manutentore impianti di riscaldamento","nAnnunci":1,"testo":"Installazione, conduzione e manutenzione centrali termiche e clima per condomini, aziende ed enti, area di Torino","marchi":"","piva":"04909600019","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Massimo Pirazzoli","sito":"","tel":"011 8996351","email":"","link":"https://it.indeed.com/viewjob?jk=673d0e7da2dc5d97","fonti":"https://www.impresaitalia.info/ik02417268/pirazzoli-di-pirazzoli-massimo-e-c-sas/torino.aspx https://www.paginegialle.it/torino-to/bruciatori/pirazzoli-pirazzoli-massimo-c._2","apertura":"Ho visto che cercate un tecnico manutentore impianti di riscaldamento. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":true,"titolare":true},"puntiCsv":60},{"id":"44","nome":"MASTROGARANTE SRL","ragione":"Mastro Garante S.r.l.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Toscana","comune":"Montemurlo (sede operativa; sede legale Varese)","ruolo":"MANUTENTORE CALDAIE E CONDIZIONATORI","nAnnunci":1,"testo":"Impianti di riscaldamento e climatizzazione; cerca manutentore caldaie e condizionatori; sede Via Udine 160 Montemurlo","marchi":"","piva":"04150360123","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://mastrogarante.it","tel":"800 03 44 94","email":"info@mastrogarante.it","link":"https://it.indeed.com/viewjob?jk=b1f6df87a22dc5e0","fonti":"https://mastrogarante.it https://www.reportaziende.it/mastro-garante-srl_va_va_405454_0","apertura":"Ho visto che state ampliando la squadra (manutentore caldaie e condizionatori). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":60},{"id":"54","nome":"Termoidraulica Covili di Covili Morgan","ragione":"Termoidraulica Covili di Covili Morgan","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Emilia-Romagna","comune":"Soliera","ruolo":"Operaio Idraulico","nAnnunci":1,"testo":"\"Azienda in crescita nel settore termoidraulico\"; installazione e assistenza caldaie e pompe di calore; Soliera (MO)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Morgan Covili","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=bfab10fcaac8e7e8","fonti":"https://phixmate.com/listing/idraulico-soliera-termoidraulica-covili/ https://prontopro.it/pro/morgan-covili-modena-soliera-condizionatori-e-climatizzatori_63114725","apertura":"Ho visto che state ampliando la squadra (operaio idraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":false,"titolare":true},"puntiCsv":60},{"id":"7","nome":"ORTOLAN IMPIANTI SRL","ragione":"ORTOLAN IMPIANTI S.R.L.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Friuli-Venezia Giulia","comune":"Fontanafredda","ruolo":"TECNICO COMMERCIALE – IMPIANTI ED EFFICIENZA ENERGETICA","nAnnunci":1,"testo":"Termoidraulica, climatizzazione, efficienza energetica; cerca tecnico commerciale","marchi":"","piva":"01482730932","vies":"VIA S PELLICO 43 33074 FONTANAFREDDA PN","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://www.ortolanimpianti.it","tel":"+39 0434 998705","email":"info@ortolanimpianti.it","link":"https://it.indeed.com/viewjob?jk=ed21ca964360161d","fonti":"https://www.ortolanimpianti.it VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (tecnico commerciale – impianti ed efficienza energetica). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":true,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":57},{"id":"11","nome":"Turcati Lauro Teermoidraulico","ragione":"Turcati Lauro Termoidraulica di Turcati Giorgio","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Friuli-Venezia Giulia","comune":"Codroipo","ruolo":"Tecnico Manutentore","nAnnunci":1,"testo":"\"Per ampliamento del nostro organico\" tecnico manutentore clima e riscaldamento; sede Via G.B. Candotti 80 Codroipo","marchi":"","piva":"02381830302","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Giorgio Turcati","sito":"https://www.turcatilauro.it","tel":"0432 901261","email":"","link":"https://it.indeed.com/viewjob?jk=21f3bfa50f760360","fonti":"https://www.turcatilauro.it https://www.informazione-aziende.it/Azienda_TURCATI-LAURO-TERMOIDRAULICA-DI-TURCATI-GIORGIO https://www.impresaitalia.info/ik03108574/turcati-lauro-termoidraulica-di-turcati-giorgio/codroipo.aspx","apertura":"Ho visto che state ampliando la squadra (tecnico manutentore). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":true},"puntiCsv":57},{"id":"9","nome":"CLIMA WORLD ONE SRL","ragione":"CLIMA WORLD ONE S.R.L.","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lazio","comune":"Roma (00118)","ruolo":"Tecnico termoidraulico","nAnnunci":1,"testo":"Installazione, manutenzione e assistenza su caldaie e condizionatori","marchi":"","piva":"12810961008","vies":"VIA PLACANICA 142 00118 ROMA RM","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://www.climaworldone.it","tel":"+39 06 86974172","email":"info@climaworldone.it","link":"https://it.indeed.com/viewjob?jk=3de18a5e169534ba","fonti":"https://www.climaworldone.it VIES 2026-11-15","apertura":"Ho visto che cercate un tecnico termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":true,"titolare":false},"puntiCsv":55},{"id":"12","nome":"Pjetri Servizi di Pjetri Ermir","ragione":"","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Veneto","comune":"Castel d'Azzano, Veneto","ruolo":"Apprendista caldaista/manutentore","nAnnunci":1,"testo":"Apprendista per manutenzione e assistenza caldaie e climatizzazione","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Ermir Pjetri","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=afdff8cc4a5efed1","fonti":"","apertura":"Ho visto che state ampliando la squadra (apprendista caldaista/manutentore). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":true},"puntiCsv":55},{"id":"16","nome":"Salvar srl","ragione":"SALVAR SRL","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Emilia-Romagna","comune":"Budrio","ruolo":"Tecnico caldaista","nAnnunci":1,"testo":"\"Affermata azienda della provincia di Bologna\"; manutenzione termoidraulica civile, industriale e condominiale, riparazione caldaie; sede Via Antonio Avati 33 Budrio","marchi":"","piva":"01733691206","vies":"VIA AVATI 33 40054 BUDRIO BO","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"salvar.it","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=39ea7267470e6505","fonti":"https://www.creditsafe.com/business-index/it-it/company/salvar-srl-it01955909 VIES 2026-11-15","apertura":"Ho visto che cercate un tecnico caldaista. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":true,"titolare":false},"puntiCsv":55},{"id":"20","nome":"THERMOSERVICE SNC","ragione":"","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"20862 Arcore","ruolo":"Tecnico caldaista","nAnnunci":1,"testo":"\"Assistenza caldaie dal 1982\"; filiale di Arcore; caldaie domestiche sotto 35 kW; segue marchi (es. Sylber)","marchi":"assistenza caldaie dal 1982, segue marchi (es. Sylber)","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=f8840d73914e3766","fonti":"","apertura":"Ho visto che cercate un tecnico caldaista e che fate assistenza su più marchi. Quante manutenzioni programmate gestite all'anno, e dove le tenete oggi?","s":{"manut":true,"install":true,"marchi":true,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":55},{"id":"55","nome":"EFFE IMPIANTI SRLS","ragione":"EFFE IMPIANTI - SOCIETA' A RESPONSABILITA' LIMITATA SEMPLIFI!!SRLS","fascia":"B","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lazio","comune":"Roma","ruolo":"Aiuto manutentore caldaie e impianti termici / MANUTENTORE CALDAIE","nAnnunci":2,"testo":"Installazione e manutenzione impianti termici; manutentore caldaie e scaldabagni; 2 annunci aperti; Roma","marchi":"","piva":"16358121008","vies":"VIA LEONE X 4-2 00167 ROMA RM","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=d0cb6ca5c1107c1e","fonti":"https://www.paginegialle.it/effeimpianti-roma VIES 2026-11-15","apertura":"Ho visto che cercate un aiuto manutentore caldaie e impianti termici. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":true,"crescita":false,"identita":true,"contatto":false,"titolare":false},"puntiCsv":55},{"id":"24","nome":"Cola Mariano","ragione":"COLA MARIANO","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lazio","comune":"Rignano Flaminio","ruolo":"operaio specializzato","nAnnunci":1,"testo":"Termoidraulica: installazione impianti termici, idrici, clima e caldaie; sede Via Leonardo Da Vinci 9 Rignano Flaminio","marchi":"","piva":"09772521002","vies":"VIA LEONARDO DA VINCI 7 INT 7 00068 RIGNANO FLAMINIO RM","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Mariano Cola","sito":"","tel":"0761 509115","email":"","link":"https://it.indeed.com/viewjob?jk=a8c11ead70c56471","fonti":"https://www.paginegialle.it/rignano-flaminio-rm/termoidraulica-cola-mariano https://www.informazione-aziende.it/Azienda_COLA-MARIANO VIES 2026-11-15","apertura":"Ho visto che cercate un operaio specializzato. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":true,"titolare":true},"puntiCsv":52},{"id":"30","nome":"Thermosolution","ragione":"Thermosolution S.r.l.s.","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Piemonte","comune":"Torino","ruolo":"Termoidraulico esperto - Idraulico / frigorista","nAnnunci":1,"testo":"Thermo Solution SRLS, Torino e provincia: idraulica, riscaldamento, clima; cerca anche collaboratori a partita IVA","marchi":"","piva":"13246820016","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://thermosolution.it","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=795acf82f5e65373","fonti":"https://thermosolution.it/chi-siamo https://www.dnb.com/business-directory/company-profiles/thermo-solution-srls.a90abe78b6805c391d88e67c2139eb37","apertura":"Ho visto che cercate un termoidraulico esperto - idraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":true,"crescita":false,"identita":true,"contatto":true,"titolare":false},"puntiCsv":52},{"id":"13","nome":"S.A.T. srl","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Veneto","comune":"31040 Volpago del Montello","ruolo":"Manutentore junior caldaie e impianti termici","nAnnunci":1,"testo":"Squadra tecnica manutenzione caldaie e impianti termici, cerca junior da formare","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=1522396295149b5e","fonti":"","apertura":"Ho visto che state ampliando la squadra (manutentore junior caldaie e impianti termici). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":50},{"id":"14","nome":"CLIMALINE SRL","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"20813 Bovisio-Masciago","ruolo":"Manutentore","nAnnunci":1,"testo":"Installazione, manutenzione e assistenza clima, riscaldamento e pompe di calore; Bovisio Masciago (MB)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=dfa3d5f1aa220a36","fonti":"","apertura":"Ho visto che state ampliando la squadra (manutentore). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":50},{"id":"15","nome":"Sicurgas snc di Figini e Azzoni","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Missaglia, Lombardia","ruolo":"Operatore manutentore","nAnnunci":1,"testo":"\"Piccola impresa di assistenza e manutenzione caldaie\" su Missaglia (LC); tempo indeterminato","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"soci Figini e Azzoni","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=8de9824b3f93435a","fonti":"","apertura":"Ho visto che cercate un operatore manutentore. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":true},"puntiCsv":50},{"id":"17","nome":"RS IMPIANTI SRL","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Emilia-Romagna","comune":"Sassuolo, Emilia-Romagna","ruolo":"IDRAULICO CIVILE ED INDUSTRIALE / FRIGORISTA","nAnnunci":1,"testo":"Ditta in provincia di Modena; installazione caldaie, impianti termici-solari, assistenza, frigorista","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=45c78a83d2604e1b","fonti":"","apertura":"Ho visto che state ampliando la squadra (idraulico civile ed industriale). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":50},{"id":"28","nome":"TSG SRL","ragione":"TSG SRL","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Corsico","ruolo":"idraulico specializzato","nAnnunci":1,"testo":"Impianti idrotermosanitari, riscaldamento, clima e gas; installazione caldaie e climatizzatori in ambito civile","marchi":"","piva":"09060320968","vies":"VIA VITTORINI 16 20094 CORSICO MI","fatturato":1490794,"annoFatt":"2024","dipendenti":7,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=dc57eec7e516fa07","fonti":"https://www.aziende.it/tsg-srl https://www.aziende.it/tsg-srl VIES 2026-11-15","apertura":"Ho visto che cercate un idraulico specializzato. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":false,"titolare":false},"puntiCsv":47},{"id":"29","nome":"SAINI TERMO IDRAULICA","ragione":"Saini Termoidraulica S.r.l.","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Monza","ruolo":"operaio idraulico","nAnnunci":1,"testo":"Cantieri, condizionamento, pompe di calore, caldaie, riparazioni, gas, bagni; provincia di Monza","marchi":"","piva":"06008700962","vies":"","fatturato":787000,"annoFatt":"2025","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=a11ae643b84b3848","fonti":"https://www.reportaziende.it/saini_termoidraulica_srl_mb","apertura":"Ho visto che cercate un operaio idraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":true,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":false,"titolare":false},"puntiCsv":47},{"id":"8","nome":"ML SERVIZI","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Emilia-Romagna","comune":"47521 Cesena","ruolo":"idraulico","nAnnunci":1,"testo":"Termoidraulica/manutenzione/installazione presso abitazioni, aziende, cantieri","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"amministrazione.mlservizi@outlook.it","link":"https://it.indeed.com/viewjob?jk=69ba9720e22bf03f","fonti":"","apertura":"Ho visto che cercate un idraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":45},{"id":"56","nome":"CLIMA PIU' SRL","ragione":"Clima Più S.r.l.","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lazio","comune":"Lido di Ostia","ruolo":"Tecnico caldaie","nAnnunci":1,"testo":"Assistenza caldaie e climatizzatori, zona Ostia","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://www.climapiusrl.com","tel":"06 50680634","email":"info@climapiusrl.com","link":"https://it.indeed.com/viewjob?jk=a4471f1802f7be55","fonti":"https://www.climapiusrl.com annuncio Indeed","apertura":"Ho visto che cercate un tecnico caldaie. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":true,"titolare":false},"puntiCsv":42},{"id":"51","nome":"Rovea Impiati Srl","ragione":"ROVEA IMPIANTI S.R.L.","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Veneto","comune":"San Giorgio in Bosco (frazione Paviola)","ruolo":"IDRAULICO / TECNICO IMPIANTI","nAnnunci":1,"testo":"Idraulico/tecnico impianti; \"azienda solida, organizzata\"; sede Paviola di San Giorgio in Bosco (PD)","marchi":"","piva":"00748060282","vies":"VIA PAPA LUCIANI 178/A 35010 SAN GIORGIO IN BOSCO PD","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"049 5996056","email":"","link":"https://it.indeed.com/viewjob?jk=98981d4a10fa9e83","fonti":"https://www.informazione-aziende.it/Azienda_ROVEA-IMPIANTI-SRL https://www.informazione-aziende.it/Citta_SAN-GIORGIO-IN-BOSCO https://www.paginegialle.it/paviola-pd/impianti-idraulici/rovea-impianti-impianti-idraulici https://www.informazione-aziende.it/Azienda_ROVEA-IMPIANTI-SRL VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (idraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":40},{"id":"2","nome":"Mario de filpo SRL","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lombardia","comune":"Lainate, Lombardia","ruolo":"Tecnico installatore caldaie e climatizzatori","nAnnunci":1,"testo":"Installazione caldaie e climatizzatori per privati e aziende in Lombardia, furgone attrezzato","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=9c98108ff7f0ee59","fonti":"","apertura":"Ho visto che cercate un tecnico installatore caldaie e climatizzatori. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":37},{"id":"5","nome":"Impiantistica Evolution srl","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Sicilia","comune":"Siracusa, Sicilia","ruolo":"TECNICO INSTALLATORE TERMOIDRAULICO","nAnnunci":1,"testo":"Termoidraulica e impiantistica; ricerca \"per ampliamento del nostro organico\"","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=ae16d57b1aa79694","fonti":"","apertura":"Ho visto che state ampliando la squadra (tecnico installatore termoidraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":false,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":37},{"id":"40","nome":"TecnoReaimpianti","ragione":"","fascia":"C","verdetto":"dentro","motivo":"installa e/o mantiene caldaie o clima; piccola impresa","regione":"Lazio","comune":"00100 Roma","ruolo":"Operaio idraulico","nAnnunci":1,"testo":"\"Tecnorea Impianti, azienda in forte crescita nel settore termoidraulico a Roma\"","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=89b5dedc08766218","fonti":"","apertura":"Ho visto che state ampliando la squadra (operaio idraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":30},{"id":"39","nome":"Sinergix srl","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"impiantistica e ristrutturazioni, manutenzione su commessa","regione":"Lazio","comune":"Roma, Lazio","ruolo":"Operaio Manutentore Termoidraulico","nAnnunci":1,"testo":"Impiantistica e ristrutturazioni, \"diverse assunzioni\" per una manutenzione su Roma","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=1998b2987cbb34d9","fonti":"","apertura":"Ho visto che state ampliando la squadra (operaio manutentore termoidraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":true,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":55},{"id":"27","nome":"W.F.B. SRL","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"manutenzione presso clienti; omonima non pertinente negli elenchi","regione":"Lombardia","comune":"Milano, Lombardia","ruolo":"MANUTENTORE IDRAULICO","nAnnunci":1,"testo":"Manutenzione idraulica e termoidraulica presso clienti, anche caldaie","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=02a1b9a8cc875b26","fonti":"https://www.aziende.it/w-f-b-s-r-l","apertura":"Ho visto che cercate un manutentore idraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":45},{"id":"35","nome":"MIT S.R.L.","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"impianti di alberghi e ospedali, profilo da facility","regione":"Lazio","comune":"Roma, Lazio","ruolo":"termoidraulico","nAnnunci":1,"testo":"Centrali termiche e condizionamento, VRF, UTA, antincendio; settore alberghiero e ospedaliero (profilo da facility)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=ba7bf3d6a051de95","fonti":"","apertura":"Ho visto che cercate un termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":45},{"id":"36","nome":"M.A.C.E. - Manutenzioni Appalti Costruzioni Edili","ragione":"Manutenzioni Appalti Costruzioni Edili SRL","fascia":"da verificare","verdetto":"dubbio","motivo":"impiantistica ma ragione sociale da impresa edile","regione":"Lazio","comune":"Roma","ruolo":"TERMOIDRAULICO","nAnnunci":1,"testo":"Settore impiantistico: installazione, manutenzione e riparazione impianti termici e idraulici; ragione sociale Srl","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=21d55b3a66596c32","fonti":"https://www.amministrazionicomunali.it/lazio/roma/mace-manutenzioni-appalti-costruzioni-edili-srl","apertura":"Ho visto che cercate un termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":45},{"id":"38","nome":"ROMANA APPALTI SNC DI GIOVANNI GIOVANNETTI","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"identità incerta: account 'Romana Appalti snc', testo 'Home Solution srls'","regione":"Lazio","comune":"00139 Roma","ruolo":"Tecnico caldaie","nAnnunci":1,"testo":"ATTENZIONE IDENTITA: account Indeed \"Romana Appalti snc\" (Via Canberra 22 Roma) ma il testo parla di \"Home Solution S.r.l.s.\", termoidraulica e clima a Roma","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=0e3dffc656f6c9c1","fonti":"","apertura":"Ho visto che cercate un tecnico caldaie. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":45},{"id":"41","nome":"ENERGY LINE SRL","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"impianti elettrici e termoidraulici; dimensione non nota","regione":"Toscana","comune":"Reggello, Toscana","ruolo":"CONTROLLER DI COMMESSA / COORDINATORE OPERATIVO","nAnnunci":1,"testo":"Impianti elettrici e termoidraulici, Reggello; cerca CONTROLLER DI COMMESSA / COORDINATORE OPERATIVO (ruolo d'ufficio: pianificazione)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=97b6562137ebc4cc","fonti":"https://topaziende.quotidiano.net/toscana/firenze/fatturato-energy-line-srl/","apertura":"Ho visto che cercate un controller di commessa / coordinatore operativo. Oggi chi tiene l'agenda di tecnici, interventi e manutenzioni, e con che strumento?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":true,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":45},{"id":"53","nome":"ALMAX GROUP SRL","ragione":"ALMAX GROUP S.R.L.","fascia":"da verificare","verdetto":"dubbio","motivo":"idraulico ed elettricista, civile e industriale","regione":"Veneto","comune":"Isola Vicentina","ruolo":"idraulico / elettricista","nAnnunci":1,"testo":"Impianti idraulici ed elettrici civili e industriali; Isola Vicentina (VI)","marchi":"","piva":"03610190245","vies":"VIA G VILLENEUVE 11 36033 ISOLA VICENTINA VI","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"https://www.almaxgroup.it","tel":"+39 0444 534761","email":"info@almaxgroup.it","link":"https://it.indeed.com/viewjob?jk=8facb07d122b5d76","fonti":"https://www.almaxgroup.it https://www.cylex-italia.it/isola-vicentina/almax-group-srl-15910256.html https://www.enfsolar.com/almax VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (idraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":true,"titolare":false},"puntiCsv":40},{"id":"21","nome":"IDROSERVICE","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"solo impianti su cantieri nuovi, nessuna manutenzione","regione":"Puglia","comune":"Lucera, Puglia","ruolo":"termoidraulico","nAnnunci":1,"testo":"Impianti civili su cantieri di nuova costruzione e ristrutturazioni; contratto a partita IVA","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=1f672c260efd823a","fonti":"","apertura":"Ho visto che cercate un termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":false,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":32},{"id":"45","nome":"ERRE.DI. srl Termoidraulica","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"cerca un magazziniere: forse rivendita","regione":"Piemonte","comune":"10024 Moncalieri","ruolo":"magazziniere mulettista","nAnnunci":1,"testo":"\"Per ampliamento del proprio organico\" azienda termoidraulica cerca magazziniere (probabile rivendita/distribuzione)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=fddc476d6f0e93c7","fonti":"","apertura":"Ho visto che state ampliando la squadra (magazziniere mulettista). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":30},{"id":"58","nome":"DMM Impianti","ragione":"D.M.M. IMPIANTI DI DE MICCO MARIANO","fascia":"da verificare","verdetto":"dubbio","motivo":"annuncio non letto; ditta individuale idraulica ed elettrica","regione":"Campania","comune":"Frattaminore","ruolo":"Operaio Elettricista/Termoidraulico","nAnnunci":1,"testo":"","marchi":"","piva":"05492211213","vies":"VIA MATTEOTTI 7 80020 FRATTAMINORE NA","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"Mariano De Micco","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=3eda0733d57baf29","fonti":"https://www.amministrazionicomunali.it/campania/frattaminore/dmm-impianti-di-de-micco-mariano VIES 2026-11-15","apertura":"Ho visto che cercate un operaio elettricista/termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":false,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":false,"titolare":true},"puntiCsv":30},{"id":"42","nome":"Aps srl","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"impianti tecnologici, non è chiaro se fa caldaie","regione":"Toscana","comune":"Firenze, Toscana","ruolo":"operaio idraulico/ termoidraulico","nAnnunci":1,"testo":"Azienda di impianti tecnologici: installazione e manutenzione impianti idrici, sanitari e termici; Firenze","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=56ebbd9d2ad6594c","fonti":"","apertura":"Ho visto che cercate un operaio idraulico/ termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":25},{"id":"47","nome":"STUDIO SCS SRL","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"idraulica civile e industriale, nessun cenno a caldaie","regione":"Veneto","comune":"30175 Marghera","ruolo":"operaio termoidraulico","nAnnunci":1,"testo":"Idraulico per lavorazioni civili e industriali, coordinamento operativo, strumenti digitali; Marghera (VE)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=1fadb3497c1f1a72","fonti":"","apertura":"Ho visto che cercate un operaio termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":25},{"id":"57","nome":"Clima Tecno Service Srl","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"annuncio non letto (verifica anti-bot di Indeed)","regione":"Lazio","comune":"00121 Lido Di Ostia Ponente","ruolo":"Tecnico","nAnnunci":1,"testo":"","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=f28b30922bd81612","fonti":"","apertura":"Ho visto che cercate un tecnico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":25},{"id":"61","nome":"Assistenza Moretti srl","ragione":"Assistenza Moretti S.r.l.","fascia":"da verificare","verdetto":"dubbio","motivo":"annuncio non letto; elenchi la descrivono come fotovoltaico","regione":"Liguria","comune":"Genova","ruolo":"Tecnico manutentore di impianti di riscaldamento","nAnnunci":1,"testo":"","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=ab4d9efa947bcdaf","fonti":"https://www.surgepv.com/solar-installers/assistenza-moretti-genoa","apertura":"Ho visto che cercate un tecnico manutentore di impianti di riscaldamento. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":25},{"id":"59","nome":"MINICHINO IMPIANTI S.R.L.","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"annuncio non letto; cerca anche geometra: forse impresa più grande","regione":"Campania","comune":"81030 Succivo","ruolo":"termoidraulico","nAnnunci":1,"testo":"","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=a18725e535cd1d9c","fonti":"","apertura":"Ho visto che cercate un termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":false,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":20},{"id":"60","nome":"CASA CLIMA SRLS","ragione":"","fascia":"da verificare","verdetto":"dubbio","motivo":"annuncio non letto; edile e impiantista","regione":"Campania","comune":"80013 Casalnuovo di Napoli","ruolo":"Apprendista operaio edile e impiantista","nAnnunci":1,"testo":"","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=84e0190885f4a67c","fonti":"","apertura":"Ho visto che cercate un apprendista operaio edile e impiantista. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":false,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":20},{"id":"4","nome":"Il Portale del Tecnico","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"rete nazionale di pronto intervento, non un installatore locale","regione":"Lombardia","comune":"Milano, Lombardia","ruolo":"Tecnico termoidraulico / Tecnico Pronto Intervento","nAnnunci":2,"testo":"Rete nazionale di pronto intervento e manutenzioni domestiche; amplia la rete su Milano","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=e3dfac979c9b4a6b","fonti":"","apertura":"Ho visto che cercate un tecnico termoidraulico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"10","nome":"Officine Napolitane","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"manutenzione industriale in presidio presso un cliente","regione":"Veneto","comune":"Padova, Veneto","ruolo":"Termoidraulico civile","nAnnunci":1,"testo":"Manutenzione industriale, termoidraulico presso azienda cliente a Padova (presidio)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=c7761238b5e04588","fonti":"","apertura":"Ho visto che cercate un termoidraulico civile. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"22","nome":"VEMIT PUNTO CLIMA","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"probabile rivenditore con 5 sedi (cerca commerciali)","regione":"Molise","comune":"Molise","ruolo":"Tecnico commerciale","nAnnunci":1,"testo":"Termoidraulico ed energie rinnovabili, 5 sedi in Abruzzo e Molise, oltre 50 anni; cerca commerciale (probabile rivendita)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=fccad694b45c567d","fonti":"","apertura":"Ho visto che state ampliando la squadra (tecnico commerciale). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":false,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"25","nome":"InPlace","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"piattaforma di selezione del personale","regione":"Lombardia","comune":"Buccinasco, Lombardia","ruolo":"Installatore/manutentore/riparatore","nAnnunci":1,"testo":"FUORI: annuncio pubblicato da InPlace SRL, piattaforma di selezione","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=7fe78176a5bbebff","fonti":"","apertura":"Ho visto che cercate un installatore/manutentore/riparatore. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"26","nome":"Attal Group","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"agenzia per il lavoro","regione":"Lombardia","comune":"Lainate, Lombardia","ruolo":"Idraulico","nAnnunci":1,"testo":"FUORI: Attal Group Spa e' agenzia per il lavoro","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=f6f1f86f495e71f5","fonti":"","apertura":"Ho visto che state ampliando la squadra (idraulico). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"32","nome":"SVAI SRL","ragione":"SVAI S.R.L.","fascia":"esclusa","verdetto":"fuori","motivo":"distributore di materiale idrotermosanitario","regione":"Veneto","comune":"Sommacampagna (Caselle)","ruolo":"Addetto/a al magazzino","nAnnunci":1,"testo":"FUORI: SVAI e' distributore di prodotti idrotermosanitari e arredobagno","marchi":"","piva":"04679180234","vies":"CASELLE VIA DELL'ARTIGIANATO 58 37066 SOMMACAMPAGNA VR","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=916ba3887528ce7e","fonti":"https://www.informazione-aziende.it/Azienda_SVAI-SRL https://www.aziende.it/svai-service-s-r-l VIES 2026-11-15","apertura":"Ho visto che cercate un addetto/a al magazzino. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"33","nome":"NECTED","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"refrigerazione industriale (macchinari)","regione":"Veneto","comune":"35122 Padova","ruolo":"Tecnico/a Trasfertista Frigorista","nAnnunci":1,"testo":"FUORI: refrigerazione industriale, macchinari (industria meccanica)","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=61c662cb4c97ddbc","fonti":"https://www.creditsafe.com/business-index/en-us/company/necto-group-srl-it03265433","apertura":"Ho visto che state ampliando la squadra (tecnico/a trasfertista frigorista). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"43","nome":"si.vi.service S.r.l.","ragione":"SI. VI. SERVICE S.R.L.","fascia":"esclusa","verdetto":"fuori","motivo":"troppo piccola (circa 0,2 M di fatturato)","regione":"Toscana","comune":"Sesto Fiorentino","ruolo":"Tecnico","nAnnunci":1,"testo":"Assistenza tecnica e manutenzione impianti termici per privati e aziende; Sesto Fiorentino","marchi":"","piva":"06058850485","vies":"VIA CAMPORELLA 5 50019 SESTO FIORENTINO FI","fatturato":208655,"annoFatt":"2025","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=ff4b2a743bbe12c7","fonti":"https://www.companyreports.it/si-vi-service-srl-06058850485 VIES 2026-11-15","apertura":"Ho visto che cercate un tecnico. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":true,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"48","nome":"Enrico Tavecchia Impianti Srl","ragione":"ENRICO TAVECCHIA IMPIANTI SRL !!SRL","fascia":"esclusa","verdetto":"fuori","motivo":"troppo grande (42 addetti, 10,8 M)","regione":"Lombardia","comune":"Cornaredo","ruolo":"Specialist Maintenance & Customer Service","nAnnunci":1,"testo":"Oltre 70 anni, progettazione e realizzazione impianti riscaldamento, condizionamento, idrici e antincendio; cerca Specialist Maintenance & Customer Service HVAC (troppo grande: 42 addetti, 10,8 M)","marchi":"","piva":"07988850157","vies":"VIA PIETRO MICCA 22 20007 CORNAREDO MI","fatturato":10811366,"annoFatt":"2024","dipendenti":42,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=3311c710024e2252","fonti":"https://topaziende.quotidiano.net/?p=170738 https://registroaziende.it/azienda/enrico-tavecchia-impianti-srl-cornaredo VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (specialist maintenance & customer service). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":true,"install":true,"marchi":false,"inFascia":false,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"49","nome":"ekonore srl","ragione":"EKONORE SRL","fascia":"esclusa","verdetto":"fuori","motivo":"bonifica legionella, non caldaie o clima","regione":"Lombardia","comune":"Milano","ruolo":"IDRAULICO SPECIALIZZATO – IMPIANTI IDRICI","nAnnunci":1,"testo":"FUORI: idraulica per bonifica legionella, trasferte nazionali","marchi":"","piva":"09730020964","vies":"VIA PALEOCAPA 1 20121 MILANO MI","fatturato":4741732,"annoFatt":"2025","dipendenti":53,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=cd361f25086985e3","fonti":"https://www.aziende.it/ekonore-srl VIES 2026-11-15","apertura":"Ho visto che state ampliando la squadra (idraulico specializzato – impianti idrici). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":true,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":true,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"50","nome":"ATD SERVICE","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"produzione di impianti di depurazione","regione":"Lombardia","comune":"Meda, Lombardia","ruolo":"RESPONSABILE DI PRODUZIONE - Impianti","nAnnunci":1,"testo":"FUORI: produzione impianti di depurazione acqua","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=33703f63c2a3cbb9","fonti":"","apertura":"Ho visto che state ampliando la squadra (responsabile di produzione - impianti). Con un tecnico in più, come organizzate oggi gli interventi e i richiami delle manutenzioni?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":true,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null},{"id":"52","nome":"Neptune srl","ragione":"","fascia":"esclusa","verdetto":"fuori","motivo":"manutenzione di macchinari industriali","regione":"Veneto","comune":"36100 Vicenza","ruolo":"Idraulico industriale","nAnnunci":1,"testo":"FUORI: manutenzioni industriali su macchinari","marchi":"","piva":"","vies":"","fatturato":null,"annoFatt":"","dipendenti":null,"titolare":"","sito":"","tel":"","email":"","link":"https://it.indeed.com/viewjob?jk=a419f955fb1948f6","fonti":"","apertura":"Ho visto che cercate un idraulico industriale. Come gestite oggi l'agenda degli interventi e le scadenze delle manutenzioni dei vostri clienti?","s":{"manut":false,"install":false,"marchi":false,"inFascia":false,"dimNota":false,"nordCentro":true,"ufficio":false,"commerciale":false,"piuAssunzioni":false,"crescita":false,"identita":false,"contatto":false,"titolare":false},"puntiCsv":null}];
+
+/* ---------- pesi del punteggio (default = documento) ---------- */
+const REGOLE = [
+  {k:"manut", g:"Fit", t:"Caldaie o clima con manutenzione", d:20, max:30},
+  {k:"install", g:"Fit", t:"Solo installazione caldaie o clima", d:12, max:30},
+  {k:"marchi", g:"Fit", t:"Centro assistenza di un marchio", d:10, max:20},
+  {k:"dim", g:"Fit", t:"5-25 addetti o 0,7-4 M€", d:10, max:20},
+  {k:"dimIgnota", g:"Fit", t:"Dimensione non nota", d:5, max:20},
+  {k:"nord", g:"Fit", t:"Nord o Centro", d:5, max:20},
+  {k:"recente", g:"Momento", t:"Annuncio negli ultimi 14 giorni", d:15, max:30},
+  {k:"ufficio", g:"Momento", t:"Cerca personale d'ufficio o coordinamento", d:15, max:30},
+  {k:"commerciale", g:"Momento", t:"Cerca un commerciale", d:5, max:20},
+  {k:"piu", g:"Momento", t:"Più assunzioni", d:5, max:20},
+  {k:"crescita", g:"Momento", t:"Frase di crescita nell'annuncio", d:5, max:20},
+  {k:"ident", g:"Qualità", t:"Identità confermata (P.IVA)", d:5, max:15},
+  {k:"contatto", g:"Qualità", t:"Telefono o sito", d:5, max:15},
+  {k:"titolare", g:"Qualità", t:"Titolare noto", d:5, max:15},
+];
+const SOGLIE_D = {A:70, B:55};
+
+const KEY = "heatdesk-cockpit-v1";
+let S = load();
+function load(){
+  const base = {esiti:{}, note:{}, pesi:{}, soglie:{...SOGLIE_D}, simulato:false};
+  try{ const x = JSON.parse(localStorage.getItem(KEY)||"null"); return x ? {...base, ...x} : base; }catch(e){ return base; }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+const W = k => (S.pesi[k] ?? REGOLE.find(r=>r.k===k).d);
+const WD = k => REGOLE.find(r=>r.k===k).d;
+
+function punteggio(a, w=W){
+  const s = a.s;
+  const fit = (s.manut ? w("manut") : s.install ? w("install") : 0) + (s.marchi ? w("marchi") : 0)
+    + (s.inFascia ? w("dim") : (!s.dimNota ? w("dimIgnota") : 0)) + (s.nordCentro ? w("nord") : 0);
+  const mom = w("recente") + (s.ufficio ? w("ufficio") : s.commerciale ? w("commerciale") : 0)
+    + (s.piuAssunzioni ? w("piu") : 0) + (s.crescita ? w("crescita") : 0);
+  const qual = (s.identita ? w("ident") : 0) + (s.contatto ? w("contatto") : 0) + (s.titolare ? w("titolare") : 0);
+  return {fit, mom, qual, tot: fit+mom+qual};
+}
+function fascia(a, w=W, sog=S.soglie){
+  if (a.verdetto==="fuori") return "esclusa";
+  if (a.verdetto==="dubbio") return "da verificare";
+  const t = punteggio(a,w).tot;
+  return t >= sog.A ? "A" : t >= sog.B ? "B" : "C";
+}
+function maxTot(w=W){
+  return Math.max(w("manut"),w("install")) + w("marchi") + Math.max(w("dim"),w("dimIgnota")) + w("nord")
+    + w("recente") + Math.max(w("ufficio"),w("commerciale")) + w("piu") + w("crescita")
+    + w("ident") + w("contatto") + w("titolare");
+}
+
+/* ---------- esiti ---------- */
+const ESITI = {
+  demo:{t:"Demo fissata", d:"Diventa SQL, passa all'AE", cls:"good", stato:["Demo fissata","ok"], giorni:null},
+  richiama:{t:"Da richiamare", d:"Ha chiesto di risentirci", stato:["Da richiamare","warn"], giorni:7},
+  non_titolare:{t:"Titolare assente", d:"Riprovo a un altro orario", stato:["Da richiamare","warn"], giorni:1},
+  no_risposta:{t:"Non risponde", d:"Riprovo tra 2 giorni", stato:["Da richiamare","warn"], giorni:2},
+  gestionale:{t:"Ha già un gestionale", d:"Segno quale, ricontatto tra 90 giorni", stato:["Non ora","muted"], giorni:90},
+  non_interessato:{t:"Non interessato", d:"Ricontatto tra 90 giorni", stato:["Non ora","muted"], giorni:90},
+  sbagliato:{t:"Numero sbagliato", d:"Il dato va corretto", cls:"bad", stato:["Numero da verificare","coral"], giorni:null},
+  non_richiamare:{t:"Non richiamare", d:"Esce dalle liste", cls:"bad", stato:["Non richiamare","coral"], giorni:null},
+};
+const OGGI = () => { const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const ultimo = id => { const l = S.esiti[id]; return l && l.length ? l[l.length-1] : null; };
+function stato(id){
+  const u = ultimo(id);
+  if(!u) return {t:"Da chiamare", c:"line", libero:true};
+  const e = ESITI[u.e];
+  const scad = u.giorni!=null ? u.t + u.giorni*864e5 : null;
+  const libero = scad!=null && scad <= Date.now() && !["demo","sbagliato","non_richiamare"].includes(u.e) && u.giorni < 90;
+  let t = e.stato[0];
+  if (scad && e.stato[0]==="Da richiamare") t += " · " + new Date(scad).toLocaleDateString("it-IT",{day:"numeric",month:"short"});
+  return {t, c:e.stato[1], libero, esito:u.e};
+}
+
+/* ---------- utilità ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const iniziali = n => n.replace(/\b(s\.?r\.?l\.?s?|s\.?n\.?c\.?|s\.?a\.?s\.?|di|e|&|-)\b/gi," ").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const nomeBreve = n => n.replace(/\s+(S\.?R\.?L\.?S?\.?|SNC|S\.N\.C\.|SAS|S\.A\.S\.)\b.*$/i,"").trim() || n;
+const euro = n => n==null ? "" : n >= 1e6 ? (n/1e6).toLocaleString("it-IT",{maximumFractionDigits:1})+" M€" : Math.round(n/1e3)+" k€";
+const ruolo1 = a => a.ruolo.split(" / ")[0];
+const ICON = {
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+  today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>',
+  sliders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
+  flow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="18" r="3"/><path d="M8 6h5a3 3 0 0 1 3 3v6"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+};
+
+/* ---------- code ---------- */
+const dentro = () => AZIENDE.filter(a => a.verdetto==="dentro");
+function codaOggi(){
+  return dentro().filter(a => ["A","B"].includes(fascia(a)) && stato(a.id).libero)
+    .sort((x,y) => punteggio(y).tot - punteggio(x).tot);
+}
+
+/* ---------- navigazione ---------- */
+let SESS = null;      // {coda:[ids], i}
+let CALL = null;      // {id, fase, t0}
+let vista = "oggi", filtro = {fascia:"tutte", q:""};
+
+function nav(){
+  const n = codaOggi().length;
+  const items = [
+    ["oggi","Lead di oggi",ICON.today,n],
+    ["aziende","Tutte le aziende",ICON.list,AZIENDE.length],
+    ["misura","Esiti e misura",ICON.chart,null],
+    ["g","Come lavora"],
+    ["punteggio","Regole di punteggio",ICON.sliders,null],
+    ["metodo","Da dove arrivano i lead",ICON.flow,null],
+  ];
+  $("#nav").innerHTML = items.map(([k,t,ic,c]) => k==="g" ? `<div class="group label">${t}</div>` :
+    `<a href="#${k}" class="${vista===k || (vista.startsWith("azienda-") && k===(SESS?"oggi":"aziende")) ? "on":""}">${ic}<span>${t}</span>${c!=null?`<span class="count num">${c}</span>`:""}</a>`).join("");
+}
+
+function route(){
+  const h = location.hash.replace("#","") || "oggi";
+  vista = h;
+  nav();
+  if (h.startsWith("azienda-")) return vAzienda(h.slice(8));
+  ({oggi:vOggi, aziende:vAziende, misura:vMisura, punteggio:vPunteggio, metodo:vMetodo}[h] || vOggi)();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- riga lista ---------- */
+function riga(a){
+  const p = punteggio(a), f = fascia(a), st = stato(a.id);
+  const pct = Math.round(p.tot / maxTot() * 100);
+  const sig = a.s.ufficio ? "Cerca ufficio: " + ruolo1(a) : "Cerca: " + ruolo1(a);
+  const sc = ["A","B","C"].includes(f) ? `<div class="score"><span class="fascia ${f}">${f}</span><div class="ring" style="--p:${pct}"><i class="num">${p.tot}</i></div></div>`
+    : `<span class="chip ${f==="esclusa"?"coral":"warn"}">${f}</span>`;
+  return `<div class="row" data-id="${a.id}">
+    <div class="co"><div class="mono">${esc(iniziali(nomeBreve(a.nome))||"?")}</div>
+      <div class="co-t"><b>${esc(a.nome)}</b><span class="sig">${esc(sig)}${a.nAnnunci>1?` · ${a.nAnnunci} annunci`:""}</span><span class="desc">${esc(a.verdetto==="dentro"?a.testo:a.motivo)}</span></div></div>
+    ${sc}
+    <div class="place"><b>${esc(a.comune.split(" (")[0])}</b><span>${esc(a.regione)}</span></div>
+    <div class="st"><span class="chip ${st.c}">${st.c!=="line"?'<span class="dot"></span>':""}${esc(st.t)}</span></div>
+    <button class="callbtn" type="button" data-call="${a.id}" aria-label="Simula chiamata a ${esc(a.nome)}" ${a.tel && a.verdetto==="dentro" ? "" : "disabled"}>${ICON.phone}</button>
+  </div>`;
+}
+function bindRows(root){
+  root.querySelectorAll(".row[data-id]").forEach(r => r.addEventListener("click", e => {
+    if (e.target.closest("[data-call]")) return;
+    location.hash = "azienda-" + r.dataset.id;
+  }));
+  root.querySelectorAll("[data-call]").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); chiama(b.dataset.call); }));
+}
+const headRow = `<div class="row headrow label"><div>Azienda e segnale</div><div>Punteggio</div><div class="place">Dove</div><div class="st">Stato</div><div></div></div>`;
+
+/* ---------- vista: lead di oggi ---------- */
+function vOggi(){
+  const coda = codaOggi();
+  const d = dentro();
+  const fA = coda.filter(a=>fascia(a)==="A").length, fB = coda.length - fA;
+  const richiami = d.filter(a => { const u=ultimo(a.id); return u && stato(a.id).libero; }).length;
+  const demo = d.filter(a => ultimo(a.id)?.e==="demo").length;
+  const data = new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+  $("#view").innerHTML = `
+    ${sessBar()}
+    <div class="head">
+      <div class="intro"><span class="label">${esc(data)}</span><h1>Lead di oggi</h1>
+        <p>Installatori e manutentori che hanno pubblicato un annuncio per tecnici negli ultimi 14 giorni, ordinati per punteggio. Si chiama il titolare, con la frase di apertura scritta sulla scheda.</p></div>
+      <button class="btn violet" type="button" id="startSess" ${coda.length?"":"disabled"}>${ICON.phone} Inizia la sessione di chiamate</button>
+    </div>
+    <div class="chips">
+      <span class="chip line num"><b>${coda.length}</b>&nbsp;da chiamare</span>
+      <span class="chip violet num">${fA} in fascia A · ${fB} in fascia B</span>
+      ${richiami?`<span class="chip warn num">${richiami} richiami in scadenza</span>`:""}
+      ${demo?`<span class="chip ok num">${demo} demo fissate</span>`:""}
+      <span class="note">Ogni lunedì arrivano i nuovi annunci della settimana. La stessa azienda rientra solo dopo 90 giorni.</span>
+    </div>
+    <div class="panel">${coda.length ? `<div class="rows">${headRow}${coda.map(riga).join("")}</div>` :
+      `<div class="empty"><h3>Lista di oggi finita</h3><p>Hai chiamato tutte le aziende di fascia A e B. Le fasce C sono in Tutte le aziende.</p><a class="btn" href="#aziende">Apri tutte le aziende</a></div>`}</div>`;
+  bindRows($("#view"));
+  $("#startSess")?.addEventListener("click", () => { SESS = {coda: coda.map(a=>a.id), i:0}; location.hash = "azienda-" + SESS.coda[0]; });
+  bindSess();
+}
+
+/* ---------- vista: tutte le aziende ---------- */
+function vAziende(){
+  const ord = {A:0,B:1,C:2,"da verificare":3,"esclusa":4};
+  const fasce = ["tutte","A","B","C","da verificare","esclusa"];
+  const lista = AZIENDE.filter(a => filtro.fascia==="tutte" || fascia(a)===filtro.fascia)
+    .filter(a => !filtro.q || (a.nome+" "+a.comune+" "+a.regione+" "+a.testo).toLowerCase().includes(filtro.q.toLowerCase()))
+    .sort((x,y) => (ord[fascia(x)]-ord[fascia(y)]) || (punteggio(y).tot-punteggio(x).tot));
+  const cnt = f => AZIENDE.filter(a => f==="tutte" || fascia(a)===f).length;
+  $("#view").innerHTML = `
+    ${sessBar()}
+    <div class="head"><div class="intro"><h1>Tutte le aziende</h1>
+      <p>Il campione completo: 61 aziende reali con un annuncio per tecnici su Indeed. Solo quelle nel cliente ideale ricevono fascia e punteggio; le altre restano visibili con il motivo.</p></div></div>
+    <div class="panel">
+      <div class="panel-h"><div class="filters">${fasce.map(f=>`<button type="button" class="seg ${filtro.fascia===f?"on":""}" data-f="${f}">${f==="tutte"?"Tutte":f.length===1?"Fascia "+f:f[0].toUpperCase()+f.slice(1)} <span class="num muted">${cnt(f)}</span></button>`).join("")}</div>
+        <input class="search" id="q" type="search" placeholder="Cerca per nome, comune, attività" value="${esc(filtro.q)}"></div>
+      <div class="rows">${headRow}${lista.map(riga).join("") || `<div class="empty">Nessuna azienda con questi filtri.</div>`}</div>
+    </div>`;
+  $("#view").querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { filtro.fascia=b.dataset.f; vAziende(); }));
+  const q = $("#q"); q.addEventListener("input", () => { filtro.q=q.value; const pos=q.selectionStart; vAziende(); const n=$("#q"); n.focus(); n.setSelectionRange(pos,pos); });
+  bindRows($("#view")); bindSess();
+}
+
+/* ---------- vista: scheda azienda ---------- */
+function vAzienda(id){
+  const a = AZIENDE.find(x => x.id===id);
+  if (!a) { location.hash="aziende"; return; }
+  const p = punteggio(a), f = fascia(a), st = stato(a.id), s = a.s;
+  const fitMax = Math.max(W("manut"),W("install"))+W("marchi")+Math.max(W("dim"),W("dimIgnota"))+W("nord");
+  const momMax = W("recente")+Math.max(W("ufficio"),W("commerciale"))+W("piu")+W("crescita");
+  const qMax = W("ident")+W("contatto")+W("titolare");
+  const why = [
+    `Annuncio aperto su Indeed negli ultimi 14 giorni: cerca <b>${esc(a.ruolo)}</b>${a.nAnnunci>1?` (${a.nAnnunci} annunci)`:""}.`,
+    s.ufficio ? "Cerca una figura d'ufficio o di coordinamento: il segnale più vicino al problema che HeatDesk risolve." : "",
+    s.crescita ? "Nell'annuncio parla di crescita o ampliamento della squadra." : "",
+    s.piuAssunzioni ? "Sta facendo più assunzioni insieme." : "",
+    a.marchi ? `Centro assistenza: ${esc(a.marchi)}.` : "",
+    s.manut ? "Fa manutenzione su caldaie o clima: contratti ricorrenti da pianificare." : s.install ? "Installa caldaie o clima (manutenzione non dichiarata)." : "",
+  ].filter(Boolean);
+  const rl = (on,t,v) => `<li class="${on?"yes":""}"><span>${on?"✓":"·"} ${t}</span><span>${on?"+"+v:"0"}</span></li>`;
+  const storia = (S.esiti[a.id]||[]).slice().reverse();
+  const dim = [a.dipendenti?`${a.dipendenti} addetti`:"", a.fatturato?`${euro(a.fatturato)}${a.annoFatt?` (${a.annoFatt})`:""}`:""].filter(Boolean).join(" · ");
+  const inSess = SESS && SESS.coda.includes(a.id);
+  $("#view").innerHTML = `
+    ${sessBar(a.id)}
+    <a class="back" href="#${inSess?"oggi":"aziende"}">← ${inSess?"Lead di oggi":"Tutte le aziende"}</a>
+    ${a.verdetto!=="dentro" ? `<div class="warnbox"><b>${a.verdetto==="fuori"?"Esclusa":"Da verificare"}:</b> ${esc(a.motivo)}. Non entra nella lista di chiamata finché qualcuno non la controlla.</div>`:""}
+    ${a.s.identita ? "" : `<div class="warnbox">Identità non confermata da fonti pubbliche: prima di chiamare controlla sito e P.IVA.</div>`}
+    <div class="panel">
+      <div class="panel-b card-h">
+        <div class="mono">${esc(iniziali(nomeBreve(a.nome))||"?")}</div>
+        <div class="t"><h1>${esc(a.nome)}</h1>
+          <div class="chips">
+            ${["A","B","C"].includes(f)?`<span class="chip violet num">Fascia ${f} · ${p.tot} punti</span>`:`<span class="chip warn">${esc(f)}</span>`}
+            <span class="chip ${st.c}">${esc(st.t)}</span>
+            ${a.piva?`<span class="chip line num">P.IVA ${esc(a.piva)}${a.vies?" · confermata su VIES":""}</span>`:""}
+            <a class="chip line" href="${esc(a.link)}" target="_blank" rel="noopener">Annuncio su Indeed ↗</a>
+            ${a.sito?`<a class="chip line" href="${esc(/^https?:/.test(a.sito)?a.sito:"https://"+a.sito)}" target="_blank" rel="noopener">Sito ↗</a>`:""}
+          </div></div>
+        <button class="btn ok" type="button" data-call="${a.id}" ${a.tel && a.verdetto==="dentro"?"":"disabled"}>${ICON.phone} Simula chiamata al titolare</button>
+      </div>
+      <div class="facts">
+        <div><span class="label">Chi chiamare</span><b>${esc(a.titolare || "Il titolare")}</b><span class="s">${a.titolare?"":"nome non trovato con fonti gratuite"}</span></div>
+        <div><span class="label">Telefono</span><b class="num">${esc(a.tel || "non trovato")}</b><span class="s">${a.tel?`<button class="copy" type="button" data-copy="${esc(a.tel)}">Copia</button>`:"cerca sul sito"}</span></div>
+        <div><span class="label">Dimensione</span><b>${esc(dim || "non nota")}</b><span class="s">${dim?"da elenchi pubblici":"a regime da Camera di Commercio"}</span></div>
+        <div><span class="label">Sede</span><b>${esc(a.comune.split(" (")[0])}</b><span class="s">${esc(a.regione)}</span></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="stack">
+        <div class="opener"><span class="label">Frase di apertura</span><q>${esc(a.apertura)}</q>
+          <button class="btn small" type="button" data-copy="${esc(a.apertura)}">Copia la frase</button></div>
+        <div class="panel"><div class="panel-h"><h2>Perché chiamarli adesso</h2></div>
+          <div class="panel-b why"><ul>${why.map(w=>`<li><span class="tick">${ICON.check}</span><span>${w}</span></li>`).join("")}</ul></div></div>
+        <div class="panel"><div class="panel-h"><h2>Cosa dice l'annuncio</h2><span class="note">letto il 15/11/2026</span></div>
+          <div class="panel-b"><p>${esc(a.testo || "Annuncio non letto: Indeed ha attivato la verifica anti-bot.")}</p></div></div>
+        <div class="panel"><div class="panel-h"><h2>Note e storico</h2></div>
+          <div class="panel-b stack">
+            <textarea id="nota" placeholder="Es. il titolare risponde dopo le 17; usa un gestionale del 2012.">${esc(S.note[a.id]||"")}</textarea>
+            ${storia.length?`<ul class="timeline">${storia.map(x=>`<li><time>${new Date(x.t).toLocaleDateString("it-IT",{day:"numeric",month:"short"})}</time><span><b>${esc(ESITI[x.e].t)}</b>${x.n?` · ${esc(x.n)}`:""}</span></li>`).join("")}</ul>`:`<p class="note">Nessuna chiamata ancora.</p>`}
+          </div></div>
+      </div>
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h2>Punteggio</h2><a class="note" href="#punteggio">Cambia i pesi</a></div>
+          <div class="panel-b bars">
+            <div><div class="bar-l"><span>Fit con HeatDesk</span><span class="num">${p.fit} / ${fitMax}</span></div><div class="bar ink"><i style="width:${p.fit/fitMax*100}%"></i></div>
+              <ul class="rules">${rl(s.manut,"Caldaie o clima con manutenzione",W("manut"))}${!s.manut?rl(s.install,"Solo installazione",W("install")):""}${rl(s.marchi,"Centro assistenza di un marchio",W("marchi"))}${s.dimNota?rl(s.inFascia,"5-25 addetti o 0,7-4 M€",W("dim")):rl(true,"Dimensione non nota",W("dimIgnota"))}${rl(s.nordCentro,"Nord o Centro",W("nord"))}</ul></div>
+            <div><div class="bar-l"><span>Momento e bisogno</span><span class="num">${p.mom} / ${momMax}</span></div><div class="bar"><i style="width:${p.mom/momMax*100}%"></i></div>
+              <ul class="rules">${rl(true,"Annuncio negli ultimi 14 giorni",W("recente"))}${rl(s.ufficio,"Ufficio o coordinamento",W("ufficio"))}${s.commerciale?rl(true,"Cerca un commerciale",W("commerciale")):""}${rl(s.piuAssunzioni,"Più assunzioni",W("piu"))}${rl(s.crescita,"Frase di crescita",W("crescita"))}</ul></div>
+            <div><div class="bar-l"><span>Qualità del dato</span><span class="num">${p.qual} / ${qMax}</span></div><div class="bar ok"><i style="width:${p.qual/qMax*100}%"></i></div>
+              <ul class="rules">${rl(s.identita,"Identità confermata",W("ident"))}${rl(s.contatto,"Telefono o sito",W("contatto"))}${rl(s.titolare,"Titolare noto",W("titolare"))}</ul></div>
+          </div></div>
+        <div class="panel"><div class="panel-h"><h2>Dati e fonti</h2></div>
+          <div class="panel-b"><dl class="kv">
+            <dt>Ragione sociale</dt><dd>${esc(a.ragione || a.nome)}</dd>
+            ${a.vies?`<dt>Indirizzo (VIES)</dt><dd>${esc(a.vies)}</dd>`:""}
+            <dt>Email</dt><dd>${esc(a.email || "non trovata")}</dd>
+            <dt>Sito</dt><dd>${esc(a.sito || "non trovato")}</dd>
+            <dt>Fonti</dt><dd class="note">${esc(a.fonti || "annuncio Indeed")}</dd>
+          </dl><p class="note" style="margin-top:12px">Solo contatti aziendali. I numeri personali scritti negli annunci sono per i candidati e non si usano.</p></div></div>
+      </div>
+    </div>`;
+  $("#nota").addEventListener("input", e => { S.note[a.id] = e.target.value; save(); });
+  $("#view").querySelectorAll("[data-call]").forEach(b => b.addEventListener("click", () => chiama(b.dataset.call)));
+  bindCopy($("#view")); bindSess();
+}
+
+function bindCopy(root){
+  root.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+    const t = b.dataset.copy, old = b.textContent;
+    try { await navigator.clipboard.writeText(t); b.textContent = "Copiato"; }
+    catch(e){ const r=document.createRange(); r.selectNodeContents(b.closest(".opener")?.querySelector("q") || b.parentElement); const s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent="Selezionato"; }
+    setTimeout(() => b.textContent = old, 1400);
+  }));
+}
+
+/* ---------- sessione ---------- */
+function sessBar(id){
+  if (!SESS) return "";
+  const i = id ? SESS.coda.indexOf(id) : SESS.i;
+  const a = AZIENDE.find(x => x.id===SESS.coda[Math.max(i,0)]);
+  return `<div class="session"><span class="label" style="color:inherit;opacity:.7">Sessione</span>
+    <span class="grow num">${Math.max(i,0)+1} di ${SESS.coda.length} · ${esc(a?.nome||"")}</span>
+    <button class="btn small" type="button" id="sessNext">Prossima azienda ${ICON.arrow}</button>
+    <button class="btn small" type="button" id="sessEnd">Chiudi sessione</button></div>`;
+}
+function bindSess(){
+  $("#sessNext")?.addEventListener("click", prossima);
+  $("#sessEnd")?.addEventListener("click", () => { SESS=null; route(); });
+}
+function prossima(){
+  if (!SESS) return;
+  const cur = location.hash.startsWith("#azienda-") ? SESS.coda.indexOf(location.hash.slice(9)) : SESS.i;
+  SESS.i = cur + 1;
+  if (SESS.i >= SESS.coda.length) { SESS = null; location.hash = "oggi"; route(); return; }
+  location.hash = "azienda-" + SESS.coda[SESS.i];
+}
+
+/* ---------- chiamata simulata ---------- */
+let timer = null;
+function chiama(id){
+  const a = AZIENDE.find(x => x.id===id); if (!a || !a.tel) return;
+  CALL = {id, fase:"squilla", t0:Date.now()};
+  if (!location.hash.endsWith("azienda-"+id)) location.hash = "azienda-" + id;
+  disegnaCall();
+  clearInterval(timer); timer = setInterval(() => { const el=$("#ctime"); if(el) el.textContent = durata(); }, 500);
+}
+const durata = () => { const s=Math.floor((Date.now()-CALL.t0)/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
+function disegnaCall(){
+  const ov = $("#overlay");
+  if (!CALL) { ov.innerHTML=""; clearInterval(timer); return; }
+  const a = AZIENDE.find(x => x.id===CALL.id);
+  if (CALL.fase==="squilla" || CALL.fase==="parla") {
+    const live = CALL.fase==="parla";
+    ov.innerHTML = `<div class="callbar" role="dialog" aria-label="Chiamata simulata">
+      <span class="pulse ${live?"live":""}"></span>
+      <div class="grow"><b>${esc(a.titolare || "Titolare")} · ${esc(nomeBreve(a.nome))}</b><span class="num">${esc(a.tel)} · ${live?"in linea":"squilla"} <span id="ctime">${durata()}</span> · simulata</span></div>
+      ${live ? `<button class="btn coral small" type="button" id="hang">Riaggancia</button>`
+             : `<button class="btn ok small" type="button" id="ans">Risponde</button><button class="btn small" type="button" id="noans">Non risponde</button>`}
+    </div>`;
+    $("#ans")?.addEventListener("click", () => { CALL.fase="parla"; CALL.t0=Date.now(); disegnaCall(); });
+    $("#noans")?.addEventListener("click", () => { CALL.fase="esito"; CALL.sel="no_risposta"; disegnaCall(); });
+    $("#hang")?.addEventListener("click", () => { CALL.fase="esito"; disegnaCall(); });
+    return;
+  }
+  clearInterval(timer);
+  const sel = CALL.sel, gg = CALL.giorni ?? (sel ? ESITI[sel].giorni : null);
+  ov.innerHTML = `<div class="scrim" id="scrim"></div>
+  <aside class="drawer" role="dialog" aria-label="Esito della chiamata">
+    <div class="drawer-h"><div><h2>Com'è andata?</h2><p class="note">${esc(a.nome)}</p></div><button class="x" type="button" id="close" aria-label="Chiudi">✕</button></div>
+    <div class="drawer-b">
+      <div class="outcomes">${Object.entries(ESITI).map(([k,e]) => `<button type="button" class="oc ${e.cls||""} ${sel===k?"on":""}" data-e="${k}"><b>${e.t}</b><span>${e.d}</span></button>`).join("")}</div>
+      ${sel && ["richiama","non_titolare","no_risposta"].includes(sel) ? `<div class="stack" style="gap:8px"><span class="label">Richiama tra</span><div class="days">${[1,2,7,14,30].map(d=>`<button type="button" class="seg ${gg===d?"on":""}" data-g="${d}">${d===1?"domani":d+" giorni"}</button>`).join("")}</div></div>`:""}
+      <div class="stack" style="gap:8px"><label class="label" for="cnote">Nota sulla chiamata</label>
+        <textarea id="cnote" placeholder="${sel==="gestionale"?"Quale gestionale usa? Da quanto?":"Cosa ti ha detto, in una riga"}">${esc(CALL.n||"")}</textarea></div>
+      <button class="btn primary" type="button" id="saveE" ${sel?"":"disabled"}>${SESS?"Salva e passa alla prossima":"Salva l'esito"}</button>
+      <p class="note">L'esito resta salvato solo in questo browser. In produzione finisce nel CRM, sulla scheda dell'azienda.</p>
+    </div></aside>`;
+  ov.querySelectorAll("[data-e]").forEach(b => b.addEventListener("click", () => { CALL.sel=b.dataset.e; CALL.giorni=null; CALL.n=$("#cnote").value; disegnaCall(); }));
+  ov.querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => { CALL.giorni=+b.dataset.g; CALL.n=$("#cnote").value; disegnaCall(); }));
+  const chiudi = () => { CALL=null; disegnaCall(); };
+  $("#close").addEventListener("click", chiudi); $("#scrim").addEventListener("click", chiudi);
+  $("#saveE").addEventListener("click", () => {
+    (S.esiti[CALL.id] ||= []).push({t:Date.now(), e:CALL.sel, giorni:gg, n:$("#cnote").value.trim()});
+    save(); CALL=null; disegnaCall();
+    if (SESS) prossima(); else route();
+  });
+}
+document.addEventListener("keydown", e => {
+  if (e.key==="Escape" && CALL && CALL.fase==="esito") { CALL=null; disegnaCall(); }
+});
+
+/* ---------- vista: esiti e misura ---------- */
+function vMisura(){
+  const d = dentro();
+  const lavorate = d.filter(a => S.esiti[a.id]?.length);
+  const chiamate = d.reduce((n,a) => n + (S.esiti[a.id]?.length||0), 0);
+  const raggiunte = lavorate.filter(a => S.esiti[a.id].some(x => !["no_risposta","sbagliato"].includes(x.e))).length;
+  const demo = lavorate.filter(a => S.esiti[a.id].some(x => x.e==="demo")).length;
+  const conv = lavorate.length ? demo/lavorate.length*100 : 0;
+  const perF = ["A","B","C"].map(f => {
+    const g = d.filter(a => fascia(a)===f), l = g.filter(a => S.esiti[a.id]?.length), dm = l.filter(a => S.esiti[a.id].some(x=>x.e==="demo")).length;
+    return {f, tot:g.length, l:l.length, dm, pct: l.length ? dm/l.length*100 : null};
+  });
+  const motivi = ["gestionale","non_interessato","non_richiamare","sbagliato"].map(k => ({k, n: lavorate.filter(a => ultimo(a.id).e===k).length}));
+  const maxM = Math.max(1, ...motivi.map(m=>m.n));
+  const vuoto = !lavorate.length;
+  const pct = v => v==null ? "—" : v.toLocaleString("it-IT",{maximumFractionDigits:1})+"%";
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Esiti e misura</h1>
+      <p>Il test che decide se il segnale funziona: stessi BDR e stessa sequenza, metà lead dal segnale e metà dalle liste comprate. Il numero da battere è il 6% di lead che diventano SQL con le liste di oggi.</p></div>
+      <div class="chips">${vuoto?`<button class="btn" type="button" id="sim">Mostra un esempio simulato</button>`:`<button class="btn" type="button" id="reset">Cancella gli esiti</button>`}</div></div>
+    ${S.simulato && !vuoto ? `<div class="banner"><span><b>Esempio simulato.</b> Esiti generati a caso per mostrare la pagina: non sono chiamate vere.</span></div>`:""}
+    ${vuoto ? `<div class="panel"><div class="empty"><h3>Ancora nessuna chiamata</h3><p>Questa pagina si riempie con gli esiti che salvi dalle schede. Fai qualche chiamata simulata, oppure guarda un esempio.</p></div></div>` : `
+    <div class="kpis">
+      <div class="kpi"><span class="label">Aziende lavorate</span><b>${lavorate.length}</b><span class="num">${chiamate} chiamate in tutto</span></div>
+      <div class="kpi"><span class="label">Titolari raggiunti</span><b>${raggiunte}</b><span>${pct(lavorate.length?raggiunte/lavorate.length*100:null)} delle aziende</span></div>
+      <div class="kpi"><span class="label">Demo fissate (SQL)</span><b>${demo}</b><span>passano all'AE</span></div>
+      <div class="kpi"><span class="label">Lead → SQL</span><b style="color:${conv>6?"var(--ok-ink)":"var(--fg)"}">${pct(conv)}</b><span>liste comprate: 6%</span></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><div class="panel-h"><h2>Conversione per fascia</h2><span class="note">se la A non batte la C, si rivedono i pesi</span></div>
+        <div class="tablewrap"><table><thead><tr><th>Fascia</th><th>Aziende</th><th>Lavorate</th><th>Demo</th><th>Lead → SQL</th></tr></thead>
+        <tbody>${perF.map(r=>`<tr><td><span class="fascia ${r.f}">${r.f}</span></td><td>${r.tot}</td><td>${r.l}</td><td>${r.dm}</td><td><b>${pct(r.pct)}</b></td></tr>`).join("")}
+        <tr><td class="muted">Liste comprate</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">6%</td></tr></tbody></table></div></div>
+      <div class="panel"><div class="panel-h"><h2>Perché dicono di no</h2></div>
+        <div class="panel-b bars">${motivi.map(m=>`<div><div class="bar-l"><span>${ESITI[m.k].t}</span><span class="num">${m.n}</span></div><div class="bar ink"><i style="width:${m.n/maxM*100}%"></i></div></div>`).join("")}
+        <p class="note">"Ha già un gestionale" dice quali concorrenti incontra il team: è un dato per il prodotto, non solo per le vendite.</p></div></div>
+    </div>`}
+    <div class="panel"><div class="panel-h"><h2>Quanto manca per una risposta affidabile</h2><span class="note">360 lead per gruppo per vedere 6% → 12% (confidenza 95%, potenza 80%)</span></div>
+      <div class="panel-b bars"><div><div class="bar-l"><span>Lead da segnale lavorati</span><span class="num">${lavorate.length} / 360</span></div><div class="bar"><i style="width:${Math.min(100,lavorate.length/360*100)}%"></i></div></div>
+      <p class="note">Al volume del campione (circa 70 lead in target al mese) servono circa 5 mesi. Con appalti ANAC e tutte le province, meno.</p></div></div>`;
+  $("#sim")?.addEventListener("click", simula);
+  $("#reset")?.addEventListener("click", () => { S.esiti={}; S.simulato=false; save(); route(); });
+}
+function simula(){
+  let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const pDemo = {A:.2, B:.12, C:.06};
+  const now = Date.now();
+  dentro().forEach(a => {
+    const f = fascia(a), l = [];
+    let t = now - 20*864e5 - rnd()*6*864e5;
+    if (rnd() < .45) { l.push({t, e:"no_risposta", giorni:2, n:""}); t += 2*864e5; }
+    const r = rnd();
+    const e = r < pDemo[f] ? "demo" : r < pDemo[f]+.22 ? "gestionale" : r < pDemo[f]+.47 ? "non_interessato" : r < pDemo[f]+.55 ? "sbagliato" : r < pDemo[f]+.6 ? "non_richiamare" : "richiama";
+    l.push({t, e, giorni:ESITI[e].giorni, n:"esempio simulato"});
+    S.esiti[a.id] = l;
+  });
+  S.simulato = true; save(); route();
+}
+
+/* ---------- vista: regole di punteggio ---------- */
+function vPunteggio(){
+  const d = dentro();
+  const base = k => WD(k);
+  const prima = d.slice().sort((x,y)=>punteggio(y,base).tot-punteggio(x,base).tot).map(a=>a.id);
+  const dopo = d.slice().sort((x,y)=>punteggio(y).tot-punteggio(x).tot);
+  const cnt = (w,sog) => ["A","B","C"].map(f => d.filter(a => fascia(a,w,sog)===f).length);
+  const [a0,b0,c0] = cnt(base, SOGLIE_D), [a1,b1,c1] = cnt(W, S.soglie);
+  const gruppi = ["Fit","Momento","Qualità"];
+  const nomiG = {Fit:"Fit con HeatDesk", Momento:"Momento e bisogno", Qualità:"Qualità del dato"};
+  const cambiato = REGOLE.some(r => W(r.k)!==r.d) || S.soglie.A!==SOGLIE_D.A || S.soglie.B!==SOGLIE_D.B;
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Regole di punteggio</h1>
+      <p>Il punteggio usa regole fisse: l'AI legge il testo degli annunci, ma non decide l'ordine. Qui si provano pesi diversi e si vede subito come cambia la lista. I pesi di partenza sono quelli del documento.</p></div>
+      <button class="btn" type="button" id="resetW" ${cambiato?"":"disabled"}>Ripristina i pesi del documento</button></div>
+    <div class="chips"><span class="chip line num">Con i pesi del documento: ${a0} A · ${b0} B · ${c0} C</span>
+      <span class="chip violet num">Con questi pesi: ${a1} A · ${b1} B · ${c1} C</span>
+      <span class="chip line num">Punteggio massimo: ${maxTot()}</span></div>
+    <div class="grid2">
+      <div class="panel"><div class="panel-b sliders" style="grid-template-columns:1fr">
+        ${gruppi.map(g => `<div class="sl"><h3>${nomiG[g]}</h3>${REGOLE.filter(r=>r.g===g).map(r => `
+          <div class="sl-row"><label for="w-${r.k}">${r.t}</label><input id="w-${r.k}" type="range" min="0" max="${r.max}" step="1" value="${W(r.k)}" data-k="${r.k}"><output class="num">${W(r.k)}</output></div>`).join("")}</div>`).join("")}
+        <div class="sl"><h3>Soglie delle fasce</h3>
+          <div class="sl-row"><label for="s-A">Fascia A da</label><input id="s-A" type="range" min="30" max="100" value="${S.soglie.A}" data-s="A"><output class="num">${S.soglie.A}</output></div>
+          <div class="sl-row"><label for="s-B">Fascia B da</label><input id="s-B" type="range" min="20" max="90" value="${S.soglie.B}" data-s="B"><output class="num">${S.soglie.B}</output></div></div>
+      </div></div>
+      <div class="panel"><div class="panel-h"><h2>Le prime 15</h2><span class="note">frecce: posizioni guadagnate o perse</span></div>
+        <ol class="rank">${dopo.slice(0,15).map((a,i) => { const j = prima.indexOf(a.id), mv = j - i, f = fascia(a);
+          return `<li><span class="num muted">${i+1}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.nome)}</span><span class="fascia ${f}">${f}</span><span class="num">${punteggio(a).tot}</span><span class="num mv ${mv>0?"up":mv<0?"down":""}">${mv>0?"↑"+mv:mv<0?"↓"+(-mv):"="}</span></li>`; }).join("")}</ol></div>
+    </div>`;
+  $("#view").querySelectorAll("input[data-k]").forEach(i => i.addEventListener("input", () => { S.pesi[i.dataset.k] = +i.value; save(); vPunteggio(); $("#w-"+i.dataset.k).focus(); nav(); }));
+  $("#view").querySelectorAll("input[data-s]").forEach(i => i.addEventListener("input", () => { S.soglie[i.dataset.s] = +i.value; save(); vPunteggio(); $("#s-"+i.dataset.s).focus(); nav(); }));
+  $("#resetW").addEventListener("click", () => { S.pesi={}; S.soglie={...SOGLIE_D}; save(); vPunteggio(); nav(); });
+}
+
+/* ---------- vista: da dove arrivano i lead ---------- */
+function vMetodo(){
+  const f = [["Annunci visti su Indeed",460,"circa"],["Aziende uniche, senza agenzie",76],["Candidate al controllo",61],["Nel cliente ideale",33,null,true],["Fasce A e B, al BDR",19]];
+  const steps = [
+    ["Raccolta","Annunci per tecnici caldaie e clima degli ultimi 14 giorni, ricerca per città.","Oggi: Indeed a mano · A regime: Google Jobs via SerpApi"],
+    ["Pulizia","Via agenzie per il lavoro, S.p.A., duplicati e annunci con codici finti.","Regole fisse, elenco agenzie aggiornato ogni mese"],
+    ["Lettura","Dal testo: cosa fa l'azienda, marchi seguiti, dimensione, frasi di crescita, ruolo cercato.","Modello AI economico, pochi centesimi ad azienda"],
+    ["Identità","Nome e comune portano alla P.IVA; la P.IVA si controlla sul servizio UE.","VIES (gratuito) · Camera di Commercio a regime"],
+    ["Punteggio","Fit, momento e qualità del dato, con pesi scritti nel codice.","Regole fisse, vedi Regole di punteggio"],
+    ["Consegna","Ogni lunedì nel CRM, ordinata per punteggio, con frase di apertura.","n8n · CRM · stessa azienda ogni 90 giorni al massimo"],
+  ];
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Da dove arrivano i lead</h1>
+      <p>Il segnale è l'annuncio di lavoro: chi assume tecnici sta crescendo, e chi cerca un'impiegata o un coordinatore ha già il problema di agenda che HeatDesk risolve. Sotto, il percorso dal primo annuncio alla scheda del BDR.</p></div></div>
+    <div class="panel"><div class="panel-h"><h2>Dal campione del 15/11/2026</h2><span class="note">il primo numero è stimato: 29 pagine per circa 16 annunci</span></div>
+      <div class="panel-b funnel">${f.map(([t,n,c,hl]) => `<div class="f-row ${hl?"hl":""}"><span>${t}</span><div class="f-bar"><i style="width:${Math.max(3,n/460*100)}%"></i></div><b class="num">${c?"~":""}${n}</b></div>`).join("")}</div></div>
+    <div class="steps">${steps.map(([t,p,tool],i) => `<div class="step"><span class="n">${String(i+1).padStart(2,"0")}</span><h3>${t}</h3><p>${p}</p><span class="tool">${tool}</span></div>`).join("")}</div>
+    <div class="grid2">
+      <div class="panel"><div class="panel-h"><h2>Sotto il segnale, l'elenco base</h2></div>
+        <div class="panel-b stack" style="gap:12px"><p>Il segnale porta circa 70 aziende in target al mese: è la corsia prioritaria. Il volume per 8 BDR viene dall'elenco di tutte le aziende che lavorano sul clima, dal registro F-gas, ordinato con le stesse regole.</p>
+          <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div class="kpi"><span class="label">Padova</span><b>1.086</b><span>imprese F-gas</span></div>
+            <div class="kpi"><span class="label">Bologna</span><b>884</b><span>imprese F-gas</span></div>
+            <div class="kpi"><span class="label">Italia, 2018</span><b>26.173</b><span>certificate (CNA)</span></div></div>
+          <p class="note">Registro consultato il 18/11/2026, sezione imprese, regolamento 2015/2067.</p></div></div>
+      <div class="panel"><div class="panel-h"><h2>Quanto costa a regime</h2></div>
+        <div class="tablewrap"><table><thead><tr><th>Pezzo</th><th>Per 1.000 lead</th></tr></thead><tbody>
+          <tr><td>Annunci (SerpApi)</td><td>20-30 $</td></tr><tr><td>Lettura dei testi (AI)</td><td>10-25 $</td></tr>
+          <tr><td>Anagrafica (Camera di Commercio)</td><td>60-90 €</td></tr><tr><td>Telefono e sito (Google Places)</td><td>0-35 $</td></tr>
+          <tr><td><b>Totale</b></td><td><b>circa 90-170 €</b></td></tr></tbody></table></div>
+        <div class="panel-b"><p class="note">Più 50-100 € al mese di abbonamenti (n8n e SerpApi). Al volume di oggi: 60-110 € al mese.</p></div></div>
+    </div>`;
+}
+
+/* ---------- tema ---------- */
+$("#themeBtn").addEventListener("click", () => {
+  const r = document.documentElement, cur = r.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  r.dataset.theme = cur === "dark" ? "light" : "dark";
+  try{ localStorage.setItem(KEY+"-tema", r.dataset.theme); }catch(e){}
+});
+try{ const t = localStorage.getItem(KEY+"-tema"); if (t) document.documentElement.dataset.theme = t; }catch(e){}
+
+route();
+</script>

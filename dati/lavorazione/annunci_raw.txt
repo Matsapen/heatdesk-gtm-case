@@ -1,0 +1,79 @@
+# jk|titolo|azienda|luogo|query  (Indeed, ultimi 14 giorni, raccolto 2026-11-15; link: https://it.indeed.com/viewjob?jk=<jk>)
+42ec94300bbd3105|Termoidraulico centrali termiche|Carbotermo S.p.A.|28824 Oggebbio|tecnico caldaie
+fd00fd048147bc6a|Operaio idraulico e tecnico manutentore delle caldaie|New Thermocomfort S.r.L.|26834 Corte Palasio|tecnico caldaie
+9c98108ff7f0ee59|Tecnico installatore caldaie e climatizzatori|Mario de filpo SRL|Lainate, Lombardia|tecnico caldaie
+4b7dc97333a12197|Tecnico caldaia / manutenzione e assistenza caldaie|Viganò Enrico snc|20841 Carate Brianza|tecnico caldaie
+e3dfac979c9b4a6b|Tecnico termoidraulico|Il Portale del Tecnico|Milano, Lombardia|tecnico caldaie
+ae16d57b1aa79694|TECNICO INSTALLATORE TERMOIDRAULICO|Impiantistica Evolution srl|Siracusa, Sicilia|tecnico caldaie
+30fa439adffe0684|tecnico manutentore caldaie|Nordidraulica|Bareggio, Lombardia|tecnico caldaie
+ed21ca964360161d|TECNICO COMMERCIALE – IMPIANTI ED EFFICIENZA ENERGETICA|ORTOLAN IMPIANTI SRL|33074 Fontanafredda|tecnico caldaie
+69ba9720e22bf03f|idraulico|ML SERVIZI|47521 Cesena|tecnico caldaie p2
+3de18a5e169534ba|Tecnico termoidraulico|CLIMA WORLD ONE SRL|00118 Roma|tecnico caldaie p2
+c7761238b5e04588|Termoidraulico civile|Officine Napolitane|Padova, Veneto|tecnico caldaie p2
+d3748c2fc6c6785c|Idraulico manutentore di presidio|Periodici San Paolo S.r.l.|20145 Milano|tecnico caldaie p2
+21f3bfa50f760360|Tecnico Manutentore|Turcati Lauro Teermoidraulico|33033 Codroipo|tecnico caldaie p2
+afdff8cc4a5efed1|Apprendista caldaista/manutentore|Pjetri Servizi di Pjetri Ermir|Castel d'Azzano, Veneto|tecnico caldaie p3
+1522396295149b5e|Manutentore junior caldaie e impianti termici|S.A.T. srl|31040 Volpago del Montello|manutentore caldaie
+dfa3d5f1aa220a36|Manutentore|CLIMALINE SRL|20813 Bovisio-Masciago|manutentore caldaie
+8de9824b3f93435a|Operatore manutentore|Sicurgas snc di Figini e Azzoni|Missaglia, Lombardia|manutentore caldaie
+39ea7267470e6505|Tecnico caldaista|Salvar srl|40054 Budrio|caldaista
+45c78a83d2604e1b|IDRAULICO CIVILE ED INDUSTRIALE / FRIGORISTA|RS IMPIANTI SRL|Sassuolo, Emilia-Romagna|caldaista
+f097326f7f5b8c06|Tecnico caldaista|Tecnofon srl|30173 Campalto|caldaista
+981845e2104d1a5d|Caldaista e Tecnico Frigorista|CANTI & PEDINI ENERGY SOLAR SRL|61022 Vallefoglia|caldaista
+f8840d73914e3766|Tecnico caldaista|THERMOSERVICE SNC|20862 Arcore|caldaista
+1f672c260efd823a|termoidraulico|IDROSERVICE|Lucera, Puglia|caldaista
+fccad694b45c567d|Tecnico commerciale|VEMIT PUNTO CLIMA|Molise|termoidraulico
+f7b397a4c9673632|Ufficio tecnico - settore termoidraulico|PRESSIANI SRL|Provincia di Bergamo, Lombardia|termoidraulico
+290dfb3801a699b6|manutentore meccanico - termoidraulico|Camst|Verbania, Piemonte|termoidraulico
+d16b6b3090322275|Impiegata/o Amministrativa/o e Supporto Rete|Wöhler Italia Srl|37010 Costermano|termoidraulico
+d6a316cdf85058c5|Frigorista - Climatizzazione e Refrigerazione|Fenim srl|Nerviano, Lombardia|frigorista climatizzazione
+d8bcd60805c8ece9|MANUTENTORE DEGLI IMPIANTI TERMICI/ELETTRICI|KINEO ENERGY E FACILITY|Modena, Emilia-Romagna|frigorista climatizzazione
+a8c11ead70c56471|operaio specializzato|Cola Mariano|00068 Rignano Flaminio|installatore climatizzatori
+7fe78176a5bbebff|Installatore/manutentore/riparatore|InPlace|Buccinasco, Lombardia|installatore climatizzatori
+11983bc27e117d50|Consulente energetico commerciale – Fotovoltaico|Magikenergy srl|Parma, Emilia-Romagna|tecnico pompe di calore
+7dfe303953613702|Elettricista Civile Specializzato in Fotovoltaico|ISP ENGINEERING SRL|Provincia di Ancona, Marche|tecnico pompe di calore
+406e87c33dcf15e6|Tecnico di Commessa Manutenzione impianti energetici|CPL Concordia Soc. Coop.|50121 Firenze|tecnico pompe di calore
+f6f1f86f495e71f5|Idraulico|Attal Group|Lainate, Lombardia|idraulico caldaie@Milano
+02a1b9a8cc875b26|MANUTENTORE IDRAULICO|W.F.B. SRL|Milano, Lombardia|idraulico caldaie@Milano
+dc57eec7e516fa07|idraulico specializzato|TSG SRL|20094 Corsico|idraulico caldaie@Milano
+a11ae643b84b3848|operaio idraulico|SAINI TERMO IDRAULICA|Monza, Lombardia|idraulico caldaie@Milano
+795acf82f5e65373|Termoidraulico esperto - Idraulico / frigorista|Thermosolution|10137 Torino|idraulico caldaie@Torino
+673d0e7da2dc5d97|tecnico manutentore impianti di riscaldamento|Pirazzoli di Pirazzoli Massimo & C. s.a.s.|10153 Torino|idraulico caldaie@Torino
+916ba3887528ce7e|Addetto/a al magazzino|SVAI SRL|Caselle di Sommacampagna, Veneto|termoidraulico@Verona
+61c662cb4c97ddbc|Tecnico/a Trasfertista Frigorista|NECTED|35122 Padova|termoidraulico@Padova
+0dee0542faea4cf5|Back Office Tecnico - HVAC|Ali Professional|Padova, Veneto|termoidraulico@Padova
+5f8a7d63223b8968|Manutentore di caldaie junior|DIAN SRL|Dolo, Veneto|termoidraulico@Padova
+ba7bf3d6a051de95|termoidraulico|MIT S.R.L.|Roma, Lazio|termoidraulico@Roma
+21d55b3a66596c32|TERMOIDRAULICO|M.A.C.E. - Manutenzioni Appalti Costruzioni Edili|Roma, Lazio|termoidraulico@Roma
+5560e6a82f65545e|Aiutante termoidraulico o elettricista|Lagitech Srl|00166 Roma|termoidraulico@Roma
+0e3dffc656f6c9c1|Tecnico caldaie|ROMANA APPALTI SNC DI GIOVANNI GIOVANNETTI|00139 Roma|termoidraulico@Roma
+1998b2987cbb34d9|Operaio Manutentore Termoidraulico|Sinergix srl|Roma, Lazio|termoidraulico@Roma
+89b5dedc08766218|Operaio idraulico|TecnoReaimpianti|00100 Roma|termoidraulico@Roma
+97b6562137ebc4cc|CONTROLLER DI COMMESSA / COORDINATORE OPERATIVO|ENERGY LINE SRL|Reggello, Toscana|termoidraulico@Firenze
+56ebbd9d2ad6594c|operaio idraulico/ termoidraulico|Aps srl|Firenze, Toscana|termoidraulico@Firenze
+ff4b2a743bbe12c7|Tecnico|si.vi.service S.r.l.|50019 Sesto Fiorentino|termoidraulico@Firenze
+b1f6df87a22dc5e0|MANUTENTORE CALDAIE E CONDIZIONATORI|MASTROGARANTE SRL|59013 Montemurlo|termoidraulico@Firenze
+be052f05620c85d8|Tecnico Pronto Intervento|Il Portale del Tecnico|Torino, Piemonte|termoidraulico@Torino
+331e7c09fc6fd621|MAGAZZINIERE MULETTISTA SETTORE IDRAULICO|Femag S.r.l.|10046 Poirino|termoidraulico@Torino
+fddc476d6f0e93c7|magazziniere mulettista|ERRE.DI. srl Termoidraulica|10024 Moncalieri|termoidraulico@Torino
+e7e4c0cbf748bef0|Apprendista termoidraulico|Emmetermo|25036 Palazzolo sull'Oglio|termoidraulico@Bergamo
+1fadb3497c1f1a72|operaio termoidraulico|STUDIO SCS SRL|30175 Marghera|termoidraulico@Treviso
+3311c710024e2252|Specialist Maintenance & Customer Service|Enrico Tavecchia Impianti Srl|20007 Cornaredo|idraulico@Monza
+02b0387895762e38|muratore / idraulico|diana costruzioni srl|Desio, Lombardia|idraulico@Monza
+cd361f25086985e3|IDRAULICO SPECIALIZZATO – IMPIANTI IDRICI|ekonore srl|Lombardia|idraulico@Monza
+33703f63c2a3cbb9|RESPONSABILE DI PRODUZIONE - Impianti|ATD SERVICE|Meda, Lombardia|idraulico@Monza
+98981d4a10fa9e83|IDRAULICO / TECNICO IMPIANTI|Rovea Impiati Srl|San Giorgio in Bosco, Veneto|idraulico@Vicenza
+320dc8e134fd4cd3|Idraulico Specializzato di cantiere|Gral Costruzioni srl unipersonale|Italia|idraulico@Vicenza
+a419f955fb1948f6|Idraulico industriale|Neptune srl|36100 Vicenza|idraulico@Vicenza
+8facb07d122b5d76|idraulico / elettricista|ALMAX GROUP SRL|36033 Isola Vicentina|idraulico@Vicenza
+bfab10fcaac8e7e8|Operaio Idraulico|Termoidraulica Covili di Covili Morgan|41019 Soliera|idraulico@Modena
+d0cb6ca5c1107c1e|Aiuto manutentore caldaie e impianti termici|EFFE IMPIANTI SRLS|00167 Roma|manutentore caldaie@Roma
+0c96bdc76fb45b78|MANUTENTORE CALDAIE|EFFE IMPIANTI SRLS|00167 Roma|manutentore caldaie@Roma
+a4471f1802f7be55|Tecnico caldaie|CLIMA PIU' SRL|Lido di Ostia, Lazio|manutentore caldaie@Roma
+f28b30922bd81612|Tecnico|Clima Tecno Service Srl|00121 Lido Di Ostia Ponente|manutentore caldaie@Roma
+735a7d5a3cda1d6d|Manutentore termoidraulico|Nettowork|Milano, Lombardia|manutentore caldaie@Milano p2
+3eda0733d57baf29|Operaio Elettricista/Termoidraulico|DMM Impianti|Orta di Atella, Campania|termoidraulico@Napoli
+a18725e535cd1d9c|termoidraulico|MINICHINO IMPIANTI S.R.L.|81030 Succivo|termoidraulico@Napoli
+84e0190885f4a67c|Apprendista operaio edile e impiantista|CASA CLIMA SRLS|80013 Casalnuovo di Napoli|termoidraulico@Napoli
+489727263516451f|AIUTANTE IDRAULICO E TERMOIDRAULICO - Apprendistato|CESVIP LOMBARDIA|Vigevano, Lombardia|impiegata termoidraulica
+ab4d9efa947bcdaf|Tecnico manutentore di impianti di riscaldamento|Assistenza Moretti srl|Genova, Liguria|caldaie@Genova

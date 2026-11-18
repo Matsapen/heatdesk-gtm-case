@@ -1,0 +1,57 @@
+# id|segnali_testo|sintesi annuncio (dal testo Indeed, 15/11/2026)|contatto nell'annuncio
+1|MANUT,CALD,CLIMA|Cerca 2 persone: idraulico e/o tecnico caldaie; centrali termiche e privati|(contatto per i candidati, non pubblicato)
+2|CALD,CLIMA|Installazione caldaie e climatizzatori per privati e aziende in Lombardia, furgone attrezzato|
+3|MANUT,CALD,CLIMA,CAT|Assistenza tecnica caldaie e manutenzione; centro assistenza Unical, Daikin, Hoval, Cuenod in Brianza; sede Via Tiziano 2 Carate Brianza|
+4|MANUT,CALD,CLIMA|Rete nazionale di pronto intervento e manutenzioni domestiche; amplia la rete su Milano|
+5|CRESCITA,CALD,CLIMA|Termoidraulica e impiantistica; ricerca "per ampliamento del nostro organico"|(contatto per i candidati, non pubblicato)
+6|CRESCITA,MANUT,CALD|"Azienda solida e in crescita continua"; installazione, assistenza e manutenzione caldaie|
+7|CRESCITA,CALD,CLIMA|Termoidraulica, climatizzazione, efficienza energetica; cerca tecnico commerciale|
+8|MANUT,CALD,CLIMA|Termoidraulica/manutenzione/installazione presso abitazioni, aziende, cantieri|amministrazione.mlservizi@outlook.it
+9|MANUT,CALD,CLIMA|Installazione, manutenzione e assistenza su caldaie e condizionatori|
+10|MANUT,CALD,CLIMA|Manutenzione industriale, termoidraulico presso azienda cliente a Padova (presidio)|
+11|CRESCITA,CLIMA|"Per ampliamento del nostro organico" tecnico manutentore clima e riscaldamento; sede Via G.B. Candotti 80 Codroipo|(contatto per i candidati, non pubblicato)
+12|CRESCITA,MANUT,CALD,CLIMA|Apprendista per manutenzione e assistenza caldaie e climatizzazione|
+13|CRESCITA,MANUT,CALD,CLIMA|Squadra tecnica manutenzione caldaie e impianti termici, cerca junior da formare|
+14|CRESCITA,MANUT,CLIMA|Installazione, manutenzione e assistenza clima, riscaldamento e pompe di calore; Bovisio Masciago (MB)|
+15|MANUT,CALD|"Piccola impresa di assistenza e manutenzione caldaie" su Missaglia (LC); tempo indeterminato|(contatto per i candidati, non pubblicato)
+16|MANUT,CALD|"Affermata azienda della provincia di Bologna"; manutenzione termoidraulica civile, industriale e condominiale, riparazione caldaie; sede Via Antonio Avati 33 Budrio|
+17|CRESCITA,MANUT,CALD,CLIMA|Ditta in provincia di Modena; installazione caldaie, impianti termici-solari, assistenza, frigorista|
+18|CRESCITA,MANUT,CALD|Settore termoidraulico; installazione, manutenzione e riparazione caldaie; Campalto (VE)|
+19|CRESCITA,MANUT,CALD,CLIMA|Efficienza energetica, impianti termici e climatizzazione, civile e industriale; Vallefoglia (PU)|
+20|MANUT,CALD,CAT|"Assistenza caldaie dal 1982"; filiale di Arcore; caldaie domestiche sotto 35 kW; segue marchi (es. Sylber)|
+21|CALD|Impianti civili su cantieri di nuova costruzione e ristrutturazioni; contratto a partita IVA|
+22|CRESCITA,CLIMA|Termoidraulico ed energie rinnovabili, 5 sedi in Abruzzo e Molise, oltre 50 anni; cerca commerciale (probabile rivendita)|
+23|MANUT,CLIMA,CAT|Manutenzione refrigerazione, clima ed elettrico per catene e attività commerciali; centro assistenza Clivet, Lennox, Loxone, Kessel; "siamo 10 persone"|
+24|CALD,CLIMA|Termoidraulica: installazione impianti termici, idrici, clima e caldaie; sede Via Leonardo Da Vinci 9 Rignano Flaminio|(contatto per i candidati, non pubblicato)
+25|MANUT,CLIMA|FUORI: annuncio pubblicato da InPlace SRL, piattaforma di selezione|
+26|CRESCITA,MANUT|FUORI: Attal Group Spa e' agenzia per il lavoro|
+27|MANUT,CALD,CLIMA|Manutenzione idraulica e termoidraulica presso clienti, anche caldaie|
+28|CALD,CLIMA|Impianti idrotermosanitari, riscaldamento, clima e gas; installazione caldaie e climatizzatori in ambito civile|
+29|CALD,CLIMA|Cantieri, condizionamento, pompe di calore, caldaie, riparazioni, gas, bagni; provincia di Monza|
+30|CALD,CLIMA|Thermo Solution SRLS, Torino e provincia: idraulica, riscaldamento, clima; cerca anche collaboratori a partita IVA|(contatto per i candidati, non pubblicato)
+31|MANUT,CALD,CLIMA|Installazione, conduzione e manutenzione centrali termiche e clima per condomini, aziende ed enti, area di Torino|
+32||FUORI: SVAI e' distributore di prodotti idrotermosanitari e arredobagno|
+33|CRESCITA,MANUT,CLIMA|FUORI: refrigerazione industriale, macchinari (industria meccanica)|
+34|CRESCITA,MANUT,CALD,CLIMA|Assistenza e manutenzione caldaie, pompe di calore, ibridi, climatizzatori; da oltre 20 anni; Dolo (VE)|
+35|MANUT,CLIMA|Centrali termiche e condizionamento, VRF, UTA, antincendio; settore alberghiero e ospedaliero (profilo da facility)|
+36|MANUT,CLIMA|Settore impiantistico: installazione, manutenzione e riparazione impianti termici e idraulici; ragione sociale Srl|
+37|CRESCITA,MANUT,CALD,CLIMA|Impianti tecnologici, oltre 35 anni; progettazione, realizzazione, manutenzione; sede Via Francesco Aquilanti 46 Roma|
+38|MANUT,CALD,CLIMA|ATTENZIONE IDENTITA: account Indeed "Romana Appalti snc" (Via Canberra 22 Roma) ma il testo parla di "Home Solution S.r.l.s.", termoidraulica e clima a Roma|
+39|CRESCITA,MANUT,CLIMA|Impiantistica e ristrutturazioni, "diverse assunzioni" per una manutenzione su Roma|
+40|CRESCITA|"Tecnorea Impianti, azienda in forte crescita nel settore termoidraulico a Roma"|(contatto per i candidati, non pubblicato)
+41|CRESCITA,MANUT|Impianti elettrici e termoidraulici, Reggello; cerca CONTROLLER DI COMMESSA / COORDINATORE OPERATIVO (ruolo d'ufficio: pianificazione)|
+42|MANUT|Azienda di impianti tecnologici: installazione e manutenzione impianti idrici, sanitari e termici; Firenze|
+43|MANUT,CALD|Assistenza tecnica e manutenzione impianti termici per privati e aziende; Sesto Fiorentino|
+44|CRESCITA,MANUT,CALD,CLIMA|Impianti di riscaldamento e climatizzazione; cerca manutentore caldaie e condizionatori; sede Via Udine 160 Montemurlo|
+45|CRESCITA|"Per ampliamento del proprio organico" azienda termoidraulica cerca magazziniere (probabile rivendita/distribuzione)|
+46|CRESCITA,MANUT,CLIMA|Installazione climatizzatori; "sta ampliando il proprio team"; Palazzolo sull'Oglio (BS)|info@emmetermo.com
+47||Idraulico per lavorazioni civili e industriali, coordinamento operativo, strumenti digitali; Marghera (VE)|
+48|CRESCITA,MANUT,CLIMA|Oltre 70 anni, progettazione e realizzazione impianti riscaldamento, condizionamento, idrici e antincendio; cerca Specialist Maintenance & Customer Service HVAC (troppo grande: 42 addetti, 10,8 M)|
+49|CRESCITA,MANUT|FUORI: idraulica per bonifica legionella, trasferte nazionali|
+50|CRESCITA|FUORI: produzione impianti di depurazione acqua|
+51|CRESCITA,MANUT|Idraulico/tecnico impianti; "azienda solida, organizzata"; sede Paviola di San Giorgio in Bosco (PD)|
+52|MANUT|FUORI: manutenzioni industriali su macchinari|
+53|CRESCITA,MANUT|Impianti idraulici ed elettrici civili e industriali; Isola Vicentina (VI)|
+54|CRESCITA,MANUT,CALD,CLIMA|"Azienda in crescita nel settore termoidraulico"; installazione e assistenza caldaie e pompe di calore; Soliera (MO)|
+55|MANUT,CALD|Installazione e manutenzione impianti termici; manutentore caldaie e scaldabagni; 2 annunci aperti; Roma|
+56|CALD,CLIMA|Assistenza caldaie e climatizzatori, zona Ostia|info@climapiusrl.com; tel. 06 50680634
