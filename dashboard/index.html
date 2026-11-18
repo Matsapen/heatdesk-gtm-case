@@ -659,7 +659,7 @@ function vMisura(){
   const motivi = ["gestionale","non_interessato","non_richiamare","sbagliato"].map(k => ({k, n: lavorate.filter(a => ultimo(a.id).e===k).length}));
   const maxM = Math.max(1, ...motivi.map(m=>m.n));
   const vuoto = !lavorate.length;
-  const pct = v => v==null ? "—" : v.toLocaleString("it-IT",{maximumFractionDigits:1})+"%";
+  const pct = v => v==null ? "-" : v.toLocaleString("it-IT",{maximumFractionDigits:1})+"%";
   $("#view").innerHTML = `
     <div class="head"><div class="intro"><h1>Esiti e misura</h1>
       <p>Il test che decide se il segnale funziona: stessi BDR e stessa sequenza, metà lead dal segnale e metà dalle liste comprate. Il numero da battere è il 6% di lead che diventano SQL con le liste di oggi.</p></div>
@@ -676,7 +676,7 @@ function vMisura(){
       <div class="panel"><div class="panel-h"><h2>Conversione per fascia</h2><span class="note">se la A non batte la C, si rivedono i pesi</span></div>
         <div class="tablewrap"><table><thead><tr><th>Fascia</th><th>Aziende</th><th>Lavorate</th><th>Demo</th><th>Lead → SQL</th></tr></thead>
         <tbody>${perF.map(r=>`<tr><td><span class="fascia ${r.f}">${r.f}</span></td><td>${r.tot}</td><td>${r.l}</td><td>${r.dm}</td><td><b>${pct(r.pct)}</b></td></tr>`).join("")}
-        <tr><td class="muted">Liste comprate</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">6%</td></tr></tbody></table></div></div>
+        <tr><td class="muted">Liste comprate</td><td class="muted">-</td><td class="muted">-</td><td class="muted">-</td><td class="muted">6%</td></tr></tbody></table></div></div>
       <div class="panel"><div class="panel-h"><h2>Perché dicono di no</h2></div>
         <div class="panel-b bars">${motivi.map(m=>`<div><div class="bar-l"><span>${ESITI[m.k].t}</span><span class="num">${m.n}</span></div><div class="bar ink"><i style="width:${m.n/maxM*100}%"></i></div></div>`).join("")}
         <p class="note">"Ha già un gestionale" dice quali concorrenti incontra il team: è un dato per il prodotto, non solo per le vendite.</p></div></div>
