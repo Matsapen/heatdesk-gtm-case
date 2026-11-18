@@ -229,6 +229,18 @@ input[type=range]{width:100%;accent-color:var(--violet)}
 .note{font-size:12px;color:var(--muted)}
 .banner{border-radius:12px;padding:12px 14px;background:var(--violet-soft);color:var(--violet-ink);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13px}
 
+.todo{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line)}
+.todo:first-child{border-top:0}
+.todo-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.todo-t a{color:var(--fg);text-decoration:none}
+.todo-t span{font-size:13px;color:var(--muted)}
+.kan{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:4px}
+.col{background:var(--surface-2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col-h{display:flex;justify-content:space-between;align-items:baseline}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.kcard a{color:var(--fg);text-decoration:none}
+.kcard .btns{margin-top:6px}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
 @media (max-width:980px){
   .row{grid-template-columns:minmax(0,1fr) 84px 44px}
   .row .place,.row .st{display:none}
@@ -293,10 +305,18 @@ const SOGLIE_D = {A:70, B:55};
 const KEY = "heatdesk-cockpit-v1";
 let S = load();
 function load(){
-  const base = {esiti:{}, note:{}, pesi:{}, soglie:{...SOGLIE_D}, simulato:false};
+  const base = {esiti:{}, note:{}, pesi:{}, soglie:{...SOGLIE_D}, simulato:false, verifiche:{}, fase:{}, decNote:{}};
   try{ const x = JSON.parse(localStorage.getItem(KEY)||"null"); return x ? {...base, ...x} : base; }catch(e){ return base; }
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+/* le aziende "da verificare" diventano dentro o fuori quando il BDR le controlla */
+AZIENDE.forEach(a => { a.verdetto0 = a.verdetto; a.motivo0 = a.motivo; });
+function applicaVerifiche(){
+  AZIENDE.forEach(a => { const v = S.verifiche[a.id];
+    a.verdetto = v==="ok" ? "dentro" : v==="fuori" ? "fuori" : a.verdetto0;
+    a.motivo = v==="fuori" ? "fuori target dopo il controllo del BDR" : v==="ok" ? "controllata dal BDR: nel cliente ideale" : a.motivo0; });
+}
+applicaVerifiche();
 const W = k => (S.pesi[k] ?? REGOLE.find(r=>r.k===k).d);
 const WD = k => REGOLE.find(r=>r.k===k).d;
 
@@ -331,7 +351,16 @@ const ESITI = {
   non_interessato:{t:"Non interessato", d:"Ricontatto tra 90 giorni", stato:["Non ora","muted"], giorni:90},
   sbagliato:{t:"Numero sbagliato", d:"Il dato va corretto", cls:"bad", stato:["Numero da verificare","coral"], giorni:null},
   non_richiamare:{t:"Non richiamare", d:"Esce dalle liste", cls:"bad", stato:["Non richiamare","coral"], giorni:null},
+  riattivato:{t:"Riportata in lista", d:"", hidden:true, stato:["Da chiamare","line"], giorni:0},
 };
+function statoKey(id){
+  const u = ultimo(id);
+  if (!u || u.e==="riattivato") return "chiamare";
+  if (["richiama","non_titolare","no_risposta"].includes(u.e)) return "richiamare";
+  if (u.e==="demo") return "demo";
+  if (["gestionale","non_interessato"].includes(u.e)) return "nonora";
+  return "stop";
+}
 const OGGI = () => { const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); };
 const ultimo = id => { const l = S.esiti[id]; return l && l.length ? l[l.length-1] : null; };
 function stato(id){
@@ -361,6 +390,11 @@ const ICON = {
   flow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="18" r="3"/><path d="M8 6h5a3 3 0 0 1 3 3v6"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
+  board:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></svg>',
+  db:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></svg>',
 };
 
 /* ---------- code ---------- */
@@ -373,17 +407,23 @@ function codaOggi(){
 /* ---------- navigazione ---------- */
 let SESS = null;      // {coda:[ids], i}
 let CALL = null;      // {id, fase, t0}
-let vista = "oggi", filtro = {fascia:"tutte", q:""};
+let vista = "oggi", filtro = {fascia:"tutte", q:"", stato:"tutti"};
+const STATI = {tutti:"Tutti gli stati", chiamare:"Da chiamare", richiamare:"Da richiamare", demo:"Demo fissata", nonora:"Non ora", stop:"Non richiamare o numero errato"};
 
 function nav(){
   const n = codaOggi().length;
   const items = [
     ["g","Per il BDR"],
     ["oggi","Lead di oggi",ICON.today,n],
+    ["dafare","Da fare oggi",ICON.bell,daFare().length || null],
     ["aziende","Tutte le aziende",ICON.list,AZIENDE.length],
+    ["demo","Demo fissate",ICON.board,inDemo().length || null],
+    ["pausa","Non richiamare e in pausa",ICON.pause,null],
     ["misura","Esiti e misura",ICON.chart,null],
     ["g","Per il GTM Engineer"],
     ["punteggio","Regole di punteggio",ICON.sliders,null],
+    ["dati","Mappa dei dati",ICON.db,null],
+    ["decisioni","Decisioni",ICON.flag,null],
     ["metodo","Da dove arrivano i lead",ICON.flow,null],
   ];
   $("#nav").innerHTML = items.map(([k,t,ic,c]) => k==="g" ? `<div class="group label">${t}</div>` :
@@ -395,7 +435,8 @@ function route(){
   vista = h;
   nav();
   if (h.startsWith("azienda-")) return vAzienda(h.slice(8));
-  ({oggi:vOggi, aziende:vAziende, misura:vMisura, punteggio:vPunteggio, metodo:vMetodo}[h] || vOggi)();
+  ({oggi:vOggi, aziende:vAziende, misura:vMisura, punteggio:vPunteggio, metodo:vMetodo,
+    dafare:vDaFare, demo:vDemo, pausa:vPausa, dati:vDati, decisioni:vDecisioni}[h] || vOggi)();
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", route);
@@ -459,6 +500,7 @@ function vAziende(){
   const ord = {A:0,B:1,C:2,"da verificare":3,"esclusa":4};
   const fasce = ["tutte","A","B","C","da verificare","esclusa"];
   const lista = AZIENDE.filter(a => filtro.fascia==="tutte" || fascia(a)===filtro.fascia)
+    .filter(a => filtro.stato==="tutti" || statoKey(a.id)===filtro.stato)
     .filter(a => !filtro.q || (a.nome+" "+a.comune+" "+a.regione+" "+a.testo).toLowerCase().includes(filtro.q.toLowerCase()))
     .sort((x,y) => (ord[fascia(x)]-ord[fascia(y)]) || (punteggio(y).tot-punteggio(x).tot));
   const cnt = f => AZIENDE.filter(a => f==="tutte" || fascia(a)===f).length;
@@ -468,10 +510,12 @@ function vAziende(){
       <p>Il campione completo: 61 aziende reali con un annuncio per tecnici su Indeed. Solo quelle nel cliente ideale ricevono fascia e punteggio; le altre restano visibili con il motivo.</p></div></div>
     <div class="panel">
       <div class="panel-h"><div class="filters">${fasce.map(f=>`<button type="button" class="seg ${filtro.fascia===f?"on":""}" data-f="${f}">${f==="tutte"?"Tutte":f.length===1?"Fascia "+f:f[0].toUpperCase()+f.slice(1)} <span class="num muted">${cnt(f)}</span></button>`).join("")}</div>
-        <input class="search" id="q" type="search" placeholder="Cerca per nome, comune, attività" value="${esc(filtro.q)}"></div>
+        <input class="search" id="q" type="search" placeholder="Cerca per nome, comune, attività" value="${esc(filtro.q)}">
+        <div class="filters" style="width:100%">${Object.entries(STATI).map(([k,t])=>`<button type="button" class="seg ${filtro.stato===k?"on":""}" data-s="${k}">${t} <span class="num muted">${k==="tutti"?AZIENDE.length:AZIENDE.filter(a=>statoKey(a.id)===k).length}</span></button>`).join("")}</div></div>
       <div class="rows">${headRow}${lista.map(riga).join("") || `<div class="empty">Nessuna azienda con questi filtri.</div>`}</div>
     </div>`;
   $("#view").querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { filtro.fascia=b.dataset.f; vAziende(); }));
+  $("#view").querySelectorAll("[data-s]").forEach(b => b.addEventListener("click", () => { filtro.stato=b.dataset.s; vAziende(); }));
   const q = $("#q"); q.addEventListener("input", () => { filtro.q=q.value; const pos=q.selectionStart; vAziende(); const n=$("#q"); n.focus(); n.setSelectionRange(pos,pos); });
   bindRows($("#view")); bindSess();
 }
@@ -624,7 +668,7 @@ function disegnaCall(){
   <aside class="drawer" role="dialog" aria-label="Esito della chiamata">
     <div class="drawer-h"><div><h2>Com'è andata?</h2><p class="note">${esc(a.nome)}</p></div><button class="x" type="button" id="close" aria-label="Chiudi">✕</button></div>
     <div class="drawer-b">
-      <div class="outcomes">${Object.entries(ESITI).map(([k,e]) => `<button type="button" class="oc ${e.cls||""} ${sel===k?"on":""}" data-e="${k}"><b>${e.t}</b><span>${e.d}</span></button>`).join("")}</div>
+      <div class="outcomes">${Object.entries(ESITI).filter(([k,e]) => !e.hidden).map(([k,e]) => `<button type="button" class="oc ${e.cls||""} ${sel===k?"on":""}" data-e="${k}"><b>${e.t}</b><span>${e.d}</span></button>`).join("")}</div>
       ${sel && ["richiama","non_titolare","no_risposta"].includes(sel) ? `<div class="stack" style="gap:8px"><span class="label">Richiama tra</span><div class="days">${[1,2,7,14,30].map(d=>`<button type="button" class="seg ${gg===d?"on":""}" data-g="${d}">${d===1?"domani":d+" giorni"}</button>`).join("")}</div></div>`:""}
       <div class="stack" style="gap:8px"><label class="label" for="cnote">Nota sulla chiamata</label>
         <textarea id="cnote" placeholder="${sel==="gestionale"?"Quale gestionale usa? Da quanto?":"Cosa ti ha detto, in una riga"}">${esc(CALL.n||"")}</textarea></div>
@@ -686,7 +730,7 @@ function vMisura(){
       <div class="panel-b bars"><div><div class="bar-l"><span>Lead da segnale lavorati</span><span class="num">${lavorate.length} / 360</span></div><div class="bar"><i style="width:${Math.min(100,lavorate.length/360*100)}%"></i></div></div>
       <p class="note">Al volume del campione (circa 70 lead in target al mese) servono circa 5 mesi. Con appalti ANAC e tutte le province, meno.</p></div></div>`;
   $("#sim")?.addEventListener("click", simula);
-  $("#reset")?.addEventListener("click", () => { S.esiti={}; S.simulato=false; save(); route(); });
+  $("#reset")?.addEventListener("click", () => { S.esiti={}; S.fase={}; S.simulato=false; save(); route(); });
 }
 function simula(){
   let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
@@ -700,6 +744,7 @@ function simula(){
     const e = r < pDemo[f] ? "demo" : r < pDemo[f]+.22 ? "gestionale" : r < pDemo[f]+.47 ? "non_interessato" : r < pDemo[f]+.55 ? "sbagliato" : r < pDemo[f]+.6 ? "non_richiamare" : "richiama";
     l.push({t, e, giorni:ESITI[e].giorni, n:"esempio simulato"});
     S.esiti[a.id] = l;
+    if (e==="demo") { const r2 = rnd(); S.fase[a.id] = r2 < .2 ? "fissata" : r2 < .4 ? "ae" : r2 < .6 ? "fatta" : r2 < .8 ? "cliente" : "persa"; }
   });
   S.simulato = true; save(); route();
 }
@@ -771,6 +816,150 @@ function vMetodo(){
           <tr><td><b>Totale</b></td><td><b>circa 90-170 €</b></td></tr></tbody></table></div>
         <div class="panel-b"><p class="note">Più 50-100 € al mese di abbonamenti (n8n e SerpApi). Al volume di oggi: 60-110 € al mese.</p></div></div>
     </div>`;
+}
+
+/* ---------- da fare oggi ---------- */
+function daFare(){
+  const L = [];
+  dentro().forEach(a => { const k = statoKey(a.id), u = ultimo(a.id);
+    if (k==="richiamare" && stato(a.id).libero) L.push({tipo:"richiamo", a, u});
+    if (k==="demo" && (S.fase[a.id]||"fissata")==="fissata") L.push({tipo:"consegna", a, u});
+    if (u && u.e==="sbagliato") L.push({tipo:"numero", a, u});
+  });
+  AZIENDE.filter(a => a.verdetto==="dubbio").forEach(a => L.push({tipo:"verifica", a}));
+  return L;
+}
+const giorno = t => new Date(t).toLocaleDateString("it-IT",{day:"numeric",month:"short"});
+function vDaFare(){
+  const L = daFare();
+  const G = [
+    ["richiamo","Richiami in scadenza","Hanno chiesto di risentirsi o non hanno risposto: oggi è il giorno."],
+    ["consegna","Demo da consegnare all'AE","Demo fissate dal BDR che l'AE non ha ancora preso in carico."],
+    ["numero","Numeri da correggere","Il numero era sbagliato: il dato va sistemato prima di richiamare."],
+    ["verifica","Aziende da verificare","Hanno il segnale ma non è chiaro se sono nel cliente ideale. Un controllo veloce su sito e P.IVA."],
+  ];
+  const item = x => { const a = x.a, u = x.u;
+    const sub = {richiamo:() => `${esc(ESITI[u.e].t)} il ${giorno(u.t)}${u.n?` · ${esc(u.n)}`:""}`, consegna:() => `Fascia ${fascia(a)} · demo fissata il ${giorno(u.t)}${u.n?` · ${esc(u.n)}`:""}`,
+      numero:() => `Numero in scheda: ${esc(a.tel||"nessuno")}`, verifica:() => esc(a.motivo)}[x.tipo]();
+    const btn = {richiamo:`<button class="btn small ok" type="button" data-act="chiama" data-id="${a.id}">${ICON.phone} Richiama</button>`,
+      consegna:`<button class="btn small primary" type="button" data-act="ae" data-id="${a.id}">Consegnata all'AE</button>`,
+      numero:`<button class="btn small" type="button" data-act="riattiva" data-id="${a.id}">Numero corretto, rimetti in lista</button>`,
+      verifica:`<button class="btn small ok" type="button" data-act="ok" data-id="${a.id}">Nel target</button><button class="btn small coral" type="button" data-act="fuori" data-id="${a.id}">Fuori target</button>`}[x.tipo];
+    return `<div class="todo"><div class="todo-t"><a href="#azienda-${a.id}"><b>${esc(a.nome)}</b></a><span>${sub}</span></div><div class="btns">${btn}</div></div>`; };
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Da fare oggi</h1>
+      <p>Tutto quello che rischia di perdersi tra una chiamata e l'altra. Ogni voce si chiude con un clic.</p></div></div>
+    ${L.length ? G.map(([k,t,d]) => { const g = L.filter(x=>x.tipo===k); return g.length ? `<div class="panel"><div class="panel-h"><div><h2>${t} <span class="muted num">${g.length}</span></h2><p class="note">${d}</p></div></div><div>${g.map(item).join("")}</div></div>` : ""; }).join("")
+      : `<div class="panel"><div class="empty"><h3>Niente in sospeso</h3><p>Richiami, demo e controlli compaiono qui quando servono.</p></div></div>`}`;
+  $("#view").querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => {
+    const id = b.dataset.id, act = b.dataset.act;
+    if (act==="chiama") return chiama(id);
+    if (act==="ae") S.fase[id] = "ae";
+    if (act==="riattiva") (S.esiti[id] ||= []).push({t:Date.now(), e:"riattivato", giorni:0, n:"numero corretto"});
+    if (act==="ok" || act==="fuori") { S.verifiche[id] = act; applicaVerifiche(); }
+    save(); nav(); vDaFare();
+  }));
+}
+
+/* ---------- demo fissate ---------- */
+const FASI = [["fissata","Demo fissata","dal BDR"],["ae","Passata all'AE","in calendario"],["fatta","Demo fatta","l'AE ha presentato"],["cliente","Cliente","contratto firmato"],["persa","Persa","con il motivo nella nota"]];
+const inDemo = () => AZIENDE.filter(a => ultimo(a.id)?.e==="demo");
+function vDemo(){
+  const L = inDemo(), fase = a => S.fase[a.id] || "fissata";
+  const cl = L.filter(a=>fase(a)==="cliente").length, pe = L.filter(a=>fase(a)==="persa").length;
+  const conv = cl+pe ? Math.round(cl/(cl+pe)*100) : null;
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Demo fissate</h1>
+      <p>Cosa succede dopo la chiamata: il BDR fissa la demo, l'AE la fa e chiude in 1-2 chiamate. Qui si legge il secondo numero del funnel, da SQL a cliente, oggi al 25%.</p></div></div>
+    <div class="chips"><span class="chip line num">${L.length} demo in tutto</span><span class="chip ok num">${cl} clienti</span><span class="chip coral num">${pe} perse</span>
+      <span class="chip violet num">SQL → cliente: ${conv==null?"non ancora misurabile":conv+"%"} · oggi 25%</span><span class="note">Si legge dopo circa 30 giorni, la durata del ciclo di vendita.</span></div>
+    ${L.length ? `<div class="kan">${FASI.map(([k,t,d],i) => { const g = L.filter(a=>fase(a)===k); return `
+      <div class="col"><div class="col-h"><b>${t}</b><span class="muted num">${g.length}</span></div><p class="note">${d}</p>
+        ${g.map(a => { const u = ultimo(a.id); return `<div class="kcard"><a href="#azienda-${a.id}"><b>${esc(a.nome)}</b></a>
+          <span class="note">${["A","B","C"].includes(fascia(a))?`Fascia ${fascia(a)} · `:""}fissata il ${giorno(u.t)}</span>${u.n?`<span class="note">${esc(u.n)}</span>`:""}
+          ${i<3?`<div class="btns"><button class="btn small" type="button" data-mv="${a.id}" data-to="${FASI[i+1][0]}">${FASI[i+1][1]} ${ICON.arrow}</button>${i>=1?`<button class="btn small coral" type="button" data-mv="${a.id}" data-to="persa">Persa</button>`:""}</div>`:""}
+        </div>`; }).join("") || `<p class="note" style="padding:8px 0">Nessuna</p>`}</div>`; }).join("")}</div>`
+      : `<div class="panel"><div class="empty"><h3>Nessuna demo ancora</h3><p>Quando una chiamata finisce con "Demo fissata", l'azienda compare qui.</p><a class="btn" href="#oggi">Vai ai lead di oggi</a></div></div>`}`;
+  $("#view").querySelectorAll("[data-mv]").forEach(b => b.addEventListener("click", () => { S.fase[b.dataset.mv] = b.dataset.to; save(); nav(); vDemo(); }));
+}
+
+/* ---------- non richiamare e in pausa ---------- */
+function vPausa(){
+  const stop = AZIENDE.filter(a => ultimo(a.id)?.e==="non_richiamare");
+  const ora = AZIENDE.filter(a => ["gestionale","non_interessato"].includes(ultimo(a.id)?.e));
+  const riga2 = (a, extra, btn) => `<div class="todo"><div class="todo-t"><a href="#azienda-${a.id}"><b>${esc(a.nome)}</b></a><span>${extra}</span></div><div class="btns">${btn}</div></div>`;
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Non richiamare e in pausa</h1>
+      <p>Due liste diverse. Chi ha chiesto di non essere chiamato esce per sempre, anche dall'elenco base. Chi ha detto "non ora" torna in lista da solo dopo 90 giorni.</p></div></div>
+    <div class="grid2">
+      <div class="panel"><div class="panel-h"><div><h2>Non richiamare <span class="muted num">${stop.length}</span></h2><p class="note">Privacy: non si chiamano più, non rientrano in nessuna lista.</p></div></div>
+        ${stop.map(a => { const u = ultimo(a.id); return riga2(a, `dal ${giorno(u.t)}${u.n?` · ${esc(u.n)}`:""}`, `<button class="btn small" type="button" data-ri="${a.id}">Inserita per errore</button>`); }).join("") || `<div class="empty"><p>Nessuna azienda. Si aggiunge scegliendo "Non richiamare" come esito.</p></div>`}</div>
+      <div class="panel"><div class="panel-h"><div><h2>In pausa <span class="muted num">${ora.length}</span></h2><p class="note">"Non ora" o "ha già un gestionale": si ricontatta tra 90 giorni.</p></div></div>
+        ${ora.map(a => { const u = ultimo(a.id), r = u.t + 90*864e5, gg = Math.max(0, Math.ceil((r-Date.now())/864e5)); return riga2(a, `${esc(ESITI[u.e].t)}${u.n?`: ${esc(u.n)}`:""} · torna il ${giorno(r)} (tra ${gg} giorni)`, `<button class="btn small" type="button" data-ri="${a.id}">Riporta in lista adesso</button>`); }).join("") || `<div class="empty"><p>Nessuna azienda in pausa.</p></div>`}</div>
+    </div>`;
+  $("#view").querySelectorAll("[data-ri]").forEach(b => b.addEventListener("click", () => { (S.esiti[b.dataset.ri] ||= []).push({t:Date.now(), e:"riattivato", giorni:0, n:""}); save(); nav(); vPausa(); }));
+}
+
+/* ---------- mappa dei dati ---------- */
+function vDati(){
+  const d = dentro(), N = d.length;
+  const C = [
+    ["Segnale (annuncio aperto)","Indeed, letto a mano il 15/11/2026","Google Jobs via SerpApi (da provare) o TheirStack", a=>true],
+    ["Ruolo cercato","Titolo dell'annuncio","Titolo dell'annuncio", a=>!!a.ruolo],
+    ["Cosa fa l'azienda","Testo dell'annuncio","Modello AI che legge il testo", a=>!!a.testo],
+    ["Marchi seguiti","Annuncio e sito aziendale","AI sul testo e ricerche per CAP dei marchi", a=>!!a.marchi],
+    ["Sede e regione","Annuncio","Camera di Commercio", a=>!!a.comune],
+    ["P.IVA","Siti, aziende.it, Pagine Gialle","Camera di Commercio", a=>!!a.piva],
+    ["Identità confermata","VIES, servizio UE gratuito","VIES e Camera di Commercio", a=>a.s.identita],
+    ["Telefono aziendale","Sito, elenchi pubblici","Google Places", a=>!!a.tel],
+    ["Sito","Ricerca da nome e comune","Google Places", a=>!!a.sito],
+    ["Email aziendale","Sito aziendale","Sito aziendale", a=>!!a.email],
+    ["Dipendenti","Elenchi pubblici","Camera di Commercio", a=>a.dipendenti!=null],
+    ["Fatturato","Elenchi pubblici","Camera di Commercio (bilancio)", a=>a.fatturato!=null],
+    ["Titolare","Ragione sociale delle ditte individuali, VIES","Camera di Commercio (visura)", a=>!!a.titolare],
+    ["Punteggio e fascia","Regole fisse nello script","Stesse regole, in n8n", a=>true],
+    ["Frase di apertura","Regole sul tipo di segnale","Regole sul tipo di segnale", a=>true],
+  ];
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Mappa dei dati</h1>
+      <p>Per ogni campo della scheda: da dove arriva oggi, gratis, e da dove arriverebbe a regime. La completezza è calcolata sulle ${N} aziende nel cliente ideale.</p></div></div>
+    <div class="panel"><div class="tablewrap"><table><thead><tr><th>Campo</th><th>Oggi, gratis</th><th>A regime</th><th style="min-width:150px">Completezza</th></tr></thead><tbody>
+      ${C.map(([t,o,r,f]) => { const n = d.filter(f).length, p = N ? n/N*100 : 0; return `<tr><td><b>${t}</b></td><td>${o}</td><td>${r}</td>
+        <td><div style="display:flex;gap:8px;align-items:center"><div class="bar ${p>=80?"ok":p>=40?"":"ink"}" style="flex:1"><i style="width:${p}%"></i></div><span class="num">${n}/${N}</span></div></td></tr>`; }).join("")}
+    </tbody></table></div></div>
+    <div class="banner"><span>Il buco è chiaro: segnale e attività sono quasi completi gratis, dimensione e titolare no. È la voce "anagrafica" del costo a regime, 60-90 € ogni 1.000 lead.</span></div>`;
+}
+
+/* ---------- decisioni ---------- */
+const FATTE = [
+  ["Cliente ideale: 5-25 addetti, circa 0,7-4 M€","4-8 utenti vogliono dire titolare, ufficio e 3-6 tecnici. Sopra i 25 c'è già un gestionale."],
+  ["Gli idraulici restano dentro se fanno caldaie o clima","Escluso solo chi fa sanitari: non ha manutenzione ricorrente."],
+  ["Segnale n.1: annunci per tecnici, l'ufficio pesa di più","È l'unico che dice quando chiamare. Chi cerca un'impiegata ha già il problema."],
+  ["Indeed solo per la prova, a regime un canale autorizzato","I termini d'uso vietano la raccolta automatica; dopo circa 95 pagine è scattata la verifica anti-bot."],
+  ["Punteggio a regole fisse, l'AI solo per leggere","Si spiega al BDR, si corregge in un minuto, si misura per fascia."],
+  ["Al BDR solo fasce A e B","La C resta visibile in Tutte le aziende e nell'elenco base."],
+  ["Solo contatti aziendali","I recapiti personali negli annunci sono per i candidati."],
+  ["Primo contatto entro 48 ore, stessa azienda non prima di 90 giorni","Il segnale invecchia in fretta; lo stesso annuncio resta aperto per settimane."],
+  ["Test affiancato contro le liste, 360 lead per gruppo","Serve per distinguere 6% da 12% con confidenza al 95% e potenza all'80%."],
+];
+const APERTE = [
+  ["Canale degli annunci: SerpApi o TheirStack?","Proposta: provare SerpApi con le 250 ricerche gratuite e verificare che mostri le piccole ditte col nome."],
+  ["Quanto spendere per l'anagrafica?","Openapi, dati Camera di Commercio: prezzo da riconfermare. Serve per titolare e dimensione."],
+  ["I pesi del punteggio sono giusti?","Si decide dopo il test: se la fascia A non converte più della C, si cambiano."],
+  ["La fascia C si chiama?","Proposta: solo dopo A e B, insieme all'elenco base."],
+  ["Appalti ANAC: quali campi e codici CPV?","Da verificare sul tracciato dei dati: codice fiscale del vincitore, CPV 50720000 e 50730000."],
+  ["Da quali province parte l'elenco base?","Proposta: Nord e Centro, partendo da quelle con più imprese F-gas."],
+];
+function vDecisioni(){
+  $("#view").innerHTML = `
+    <div class="head"><div class="intro"><h1>Decisioni</h1>
+      <p>Cosa è già deciso, con il motivo, e cosa resta da decidere insieme. Le note restano salvate in questo browser.</p></div></div>
+    <div class="panel"><div class="panel-h"><h2>Già deciso <span class="muted num">${FATTE.length}</span></h2></div>
+      <div>${FATTE.map(([t,m]) => `<div class="todo"><span class="tick">${ICON.check}</span><div class="todo-t" style="flex:1"><b>${t}</b><span>${m}</span></div></div>`).join("")}</div></div>
+    <div class="panel"><div class="panel-h"><h2>Da decidere <span class="muted num">${APERTE.length}</span></h2></div>
+      <div>${APERTE.map(([t,m],i) => `<div class="todo" style="flex-direction:column;align-items:stretch"><div class="todo-t"><b>${t}</b><span>${m}</span></div>
+        <textarea id="dec-${i}" data-dec="${i}" placeholder="Appunti della discussione" style="min-height:56px">${esc(S.decNote[i]||"")}</textarea></div>`).join("")}</div></div>`;
+  $("#view").querySelectorAll("[data-dec]").forEach(t => t.addEventListener("input", () => { S.decNote[t.dataset.dec] = t.value; save(); }));
 }
 
 /* ---------- tema ---------- */

@@ -27,11 +27,22 @@ Funnel del campione (15/11/2026): circa 460 annunci → 76 aziende uniche → 61
 
 `dashboard/index.html` mostra cosa riceve il BDR ogni lunedì:
 
-- **Lead di oggi**: le aziende in fascia A e B, ordinate per punteggio, con il segnale in evidenza.
+Per il BDR:
+
+- **Lead di oggi**: le aziende in fascia A e B, ordinate per punteggio, con il segnale in evidenza e una sessione di chiamate in sequenza.
+- **Da fare oggi**: richiami in scadenza, demo da passare all'AE, numeri da correggere, aziende da verificare.
 - **Scheda azienda**: perché chiamarli adesso, frase di apertura, punteggio spiegato regola per regola, contatti aziendali e fonti.
 - **Chiamata simulata** con esito (demo fissata, da richiamare, ha già un gestionale, non interessato...). In produzione l'esito va nel CRM.
+- **Demo fissate**: il passaggio all'AE, da demo fissata a cliente o persa.
+- **Non richiamare e in pausa**: chi non va più chiamato e chi torna in lista dopo 90 giorni.
 - **Esiti e misura**: conversione lead → SQL per fascia contro il 6% delle liste comprate.
+
+Per il GTM Engineer:
+
 - **Regole di punteggio**: i pesi si cambiano con un cursore e la lista si riordina subito.
+- **Mappa dei dati**: per ogni campo, la fonte di oggi, quella a regime e quanto è completo.
+- **Decisioni**: le scelte già prese con il motivo, e quelle ancora aperte.
+- **Da dove arrivano i lead**: il percorso dal primo annuncio alla scheda.
 
 Le chiamate sono simulate e gli esiti restano solo nel browser di chi la apre.
 
