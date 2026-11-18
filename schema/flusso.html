@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Flusso macchina GTM HeatDesk</title>
+<style>body{font-family:Inter,system-ui,sans-serif;background:#fafafa;margin:24px}</style></head><body>
+<pre class="mermaid">
+flowchart TB
+  S1["Annunci per tecnici<br/>Google Jobs via SerpApi"]
+  S2["Appalti di manutenzione vinti<br/>open data ANAC, ogni mese"]
+  S3["Registro F-gas e centri assistenza<br/>elenco base per il volume"]
+
+  P1["Pulizia: via agenzie, duplicati e codici finti"]
+  P2["Lettura del testo con AI: attività, marchi, crescita, ruolo cercato"]
+  P3["Identità: P.IVA su VIES e Camera di Commercio"]
+  P4["Contatti aziendali: Google Places e sito"]
+  P5["Punteggio a regole fisse<br/>fit 45 · momento 40 · qualità 15"]
+
+  CRM["Lunedì: lead di oggi nel CRM<br/>fasce A e B, scheda e frase di apertura"]
+  BDR["Il BDR chiama il titolare entro 48 ore"]
+  E{"Esito della chiamata"}
+  AE["Demo con l'AE, chiusura in 1-2 chiamate"]
+  FINE["Cliente o persa"]
+  RICH["Da richiamare<br/>torna in Da fare oggi"]
+  PAUSA["Non ora<br/>torna in lista dopo 90 giorni"]
+  STOP["Non richiamare<br/>esce da tutte le liste"]
+
+  MISURA["Misura: lead → SQL per fascia contro il 6% delle liste comprate<br/>contatore settimanale degli annunci nuovi: a zero, la fonte è rotta"]
+
+  S1 --> P1
+  S2 --> P1
+  P1 --> P2 --> P3 --> P4 --> P5
+  S3 --> P5
+  P5 --> CRM --> BDR --> E
+  E -->|"Demo fissata (SQL)"| AE --> FINE --> MISURA
+  E --> RICH
+  E --> PAUSA
+  E --> STOP
+  MISURA -.->|"se la fascia A non batte la C, si cambiano i pesi"| P5
+
+  classDef fonte fill:#f4f4f5,stroke:#a1a1aa,color:#18181b
+  classDef motore fill:#f1edff,stroke:#7d68eb,color:#18181b
+  classDef vendita fill:#e8f8f1,stroke:#10b981,color:#18181b
+  classDef misura fill:#fff5e0,stroke:#f99c00,color:#18181b
+  class S1,S2,S3 fonte
+  class P1,P2,P3,P4,P5 motore
+  class CRM,BDR,E,AE,FINE,RICH,PAUSA,STOP vendita
+  class MISURA misura
+</pre>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:"base",themeVariables:{primaryColor:"#f1edff",primaryBorderColor:"#7d68eb",lineColor:"#71717a",fontFamily:"Inter, sans-serif"}});</script>
+</body></html>
