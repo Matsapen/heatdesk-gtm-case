@@ -2,6 +2,9 @@
 
 Come trovare installatori e manutentori HVAC italiani nel momento giusto, invece di lavorare liste comprate e vecchie.
 
+**Dashboard demo, si apre nel browser:** https://matsapen.github.io/heatdesk-gtm-case/dashboard/  
+**Schema della macchina a tutta pagina:** https://matsapen.github.io/heatdesk-gtm-case/schema/flusso.html
+
 HeatDesk è un SaaS immaginario per installatori di caldaie e climatizzatori: preventivi, agenda dei tecnici e contratti di manutenzione. Oggi 8 BDR lavorano liste comprate e convertono il 6% dei lead in SQL. Questo repo contiene la proposta e la prova che funziona su aziende vere.
 
 ## Cosa c'è
@@ -74,7 +77,7 @@ flowchart TB
 
 ## La dashboard
 
-`dashboard/index.html` mostra cosa riceve il BDR ogni lunedì:
+[Apri la dashboard](https://matsapen.github.io/heatdesk-gtm-case/dashboard/): mostra cosa riceve il BDR ogni lunedì.
 
 Per il BDR:
 
