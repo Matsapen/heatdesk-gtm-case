@@ -13,6 +13,7 @@ HeatDesk è un SaaS immaginario per installatori di caldaie e climatizzatori: pr
 |---|---|
 | `documento/` | Il business case in 5 pagine: cliente ideale, i 3 segnali, prova di concetto, piano a regime, misura |
 | `dati/campione_heatdesk.csv` | 61 aziende italiane reali con un annuncio per tecnici aperto, arricchite e con punteggio. Ogni campo ha la sua fonte. Versione per Excel accanto (separatore `;`) |
+| `dati/verifica_aziende_2026-11-20.md` | Controllo successivo, azienda per azienda, su partita IVA (VIES), siti ed elenchi pubblici: 50 su 61 confermate, 30 su 33 nel cliente ideale. Non cambia campione e punteggi: segnala gli errori trovati |
 | `dati/schede_bdr.md` | Le 19 schede pronte per il BDR (fasce A e B): chi chiamare, perché adesso, frase di apertura |
 | `dashboard/index.html` | Demo funzionante del cockpit del BDR. Si apre con un doppio clic, senza installare niente |
 | `script/` | Gli script che costruiscono campione, schede e dashboard |
